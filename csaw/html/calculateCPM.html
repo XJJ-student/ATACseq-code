@@ -1,0 +1,108 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Calculate CPM</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for calculateCPM {csaw}"><tr><td>calculateCPM {csaw}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Calculate CPM</h2>
+
+<h3>Description</h3>
+
+<p>Calculate counts-per-million (CPM) values for each feature.</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+calculateCPM(object, use.norm.factors=TRUE, use.offsets=FALSE, 
+    log=TRUE, prior.count=1, assay.id="counts")
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>object</code></td>
+<td>
+<p>A SummarizedExperiment object containing a count matrix, as produced by <code><a href="../../csaw/help/windowCounts.html">windowCounts</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>use.norm.factors</code></td>
+<td>
+<p>A logical scalar indicating whether to use normalization factors, if available.</p>
+</td></tr>
+<tr valign="top"><td><code>use.offsets</code></td>
+<td>
+<p>A logical scalar indicating whether to use offsets, if available.</p>
+</td></tr>
+<tr valign="top"><td><code>log</code></td>
+<td>
+<p>A logical scalar indicating whether log2-transformed CPM values should be returned.</p>
+</td></tr>
+<tr valign="top"><td><code>prior.count</code></td>
+<td>
+<p>A numeric scalar specifying the prior count to add when <code>log=TRUE</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>assay.id</code></td>
+<td>
+<p>A string or integer scalar indicating which assay of <code>y</code> contains the counts.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>CPMs are calculated in the standard manner when <code>log=FALSE</code>, <code>use.offsets=FALSE</code> and <code>use.norm.factors=FALSE</code>.
+</p>
+<p>When <code>log=TRUE</code>, a library size-adjusted prior count is added to both the counts and the library sizes, see <code><a href="../../edgeR/help/cpm.html">cpm</a></code> for details.
+</p>
+<p>When <code>use.norm.factors=TRUE</code>, the effective library size is used for computing CPMs, provided that normalization factors are available in <code>object</code>.
+This is defined as the product of the library size in <code>object$totals</code> and the normalization factor in <code>object$norm.factors</code>.
+</p>
+<p>If <code>use.offsets=TRUE</code>, the offsets are converted into effective library sizes using <code><a href="../../edgeR/html/scaleOffset.html">scaleOffset</a></code>.
+If <code>log=TRUE</code>, this is done after addition of a prior count to both the counts and library sizes, see <code><a href="../../edgeR/html/addPriorCount.html">addPriorCount</a></code> for details.
+</p>
+
+
+<h3>Value</h3>
+
+<p>A matrix of the same dimensions as <code>object</code>, containing (log-)transformed CPM values for each feature in each sample.
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p>Aaron Lun
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="../../edgeR/help/cpm.html">cpm</a></code>,
+<code><a href="../../edgeR/html/scaleOffset.html">scaleOffset</a></code>,
+<code><a href="../../edgeR/html/addPriorCount.html">addPriorCount</a></code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+bamFiles &lt;- system.file("exdata", c("rep1.bam", "rep2.bam"), package="csaw")
+data1 &lt;- windowCounts(bamFiles, width=50, filter=1)
+head(calculateCPM(data1))
+
+data1$norm.factors &lt;- c(0.5, 1.5)
+head(calculateCPM(data1))
+
+head(calculateCPM(data1, log=FALSE))
+
+# With offsets:
+assay(data1, "offset") &lt;- matrix(rnorm(nrow(data1)*ncol(data1)), 
+    nrow=nrow(data1), ncol=ncol(data1))
+head(calculateCPM(data1, use.offsets=TRUE))
+
+head(calculateCPM(data1, use.offsets=FALSE))
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>csaw</em> version 1.26.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

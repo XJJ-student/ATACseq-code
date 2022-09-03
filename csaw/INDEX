@@ -1,0 +1,39 @@
+asDGEList               SummarizedExperiment to DGEList
+calculateCPM            Calculate CPM
+checkBimodality         Check bimodality of regions
+cluster-direction       Reporting cluster-level direction in 'csaw'
+clusterFDR              Compute the cluster-level FDR
+clusterWindows          Cluster DB windows into clusters
+clusterWindowsList      Consolidate DB clusters
+combineTests            Combine statistics across multiple tests
+correlateReads          Compute correlation coefficients between reads
+csawUsersGuide          View csaw user's guide
+defunct                 Defunct functions
+detailRanges            Add annotation to ranges
+empiricalFDR            Control the empirical FDR
+extractReads            Extract reads from a BAM file
+filterWindowsProportion
+                        Filtering methods for
+                        RangedSummarizedExperiment objects
+findMaxima              Find local maxima
+getBestTest             Get the best test in a cluster
+getPESizes              Compute fragment lengths for paired-end tags
+getWidths               Get region widths
+maximizeCcf             Find the delay at the maximal CCF
+mergeResults            Wrappers to get region-level results
+mergeResultsList        Wrappers to combine multiple analyses
+mergeWindows            Merge windows into clusters
+mergeWindowsList        Consolidate window sizes
+minimalTests            Require rejection of a minimal number of tests
+mixedTests              Tests for mixed DB clusters
+normFactors             Scaling normalization across libraries
+normOffsets             Normalize trended biases across libraries
+overlapStats            Combine statistics for overlap-based clusters
+profileSites            Profile binding sites
+readParam               readParam class and methods
+regionCounts            Count reads overlapping each region
+scaledAverage           Scaled average abundance
+strandedCounts          Get strand-specific counts
+upweightSummit          Upweight summits
+windowCounts            Count reads overlapping each window
+wwhm                    Window width at half maximum

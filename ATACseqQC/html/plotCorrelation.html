@@ -1,0 +1,104 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: plot Correlations of multiple samples</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for plotCorrelation {ATACseqQC}"><tr><td>plotCorrelation {ATACseqQC}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>plot Correlations of multiple samples</h2>
+
+<h3>Description</h3>
+
+<p>plot PCA or heatmap for multiple bamfiles. The correlation is 
+calculated by the counts in promoter regions.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+plotCorrelation(
+  objs,
+  txs,
+  seqlev = intersect(seqlevels(objs[[1]]), seqlevels(txs)),
+  upstream = 2000,
+  downstream = 500,
+  type = c("heatmap", "PCA"),
+  ...
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>objs</code></td>
+<td>
+<p>an object of <a href="../../GenomicAlignments/help/GAlignmentsList-class.html">GAlignmentsList</a></p>
+</td></tr>
+<tr valign="top"><td><code>txs</code></td>
+<td>
+<p>GRanges of transcripts</p>
+</td></tr>
+<tr valign="top"><td><code>seqlev</code></td>
+<td>
+<p>A vector of characters indicates the sequence levels.</p>
+</td></tr>
+<tr valign="top"><td><code>upstream</code></td>
+<td>
+<p>numeric(1) or integer(1). Start position of promoter. Default is 2000</p>
+</td></tr>
+<tr valign="top"><td><code>downstream</code></td>
+<td>
+<p>numeric(1) or integer(1). End position of promoter. Default is 500</p>
+</td></tr>
+<tr valign="top"><td><code>type</code></td>
+<td>
+<p>Figure type, heatmap or PCA plot.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>parameters could be passed to downstream functions such as plot for pca or heatmap for heatmap.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>The correlation will be calculated by the correlation of insertion
+sites within promoter regions. Even the sequencing is paired-end, 
+please treat it as single ends.
+</p>
+
+
+<h3>Value</h3>
+
+<p>A invisible object of <a href="../../GenomicRanges/help/GRanges-class.html">GRanges</a> with counts
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p>Jianhong Ou
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+library(GenomicRanges)
+library(GenomicAlignments)
+path &lt;- system.file("extdata", package="ATACseqQC", mustWork=TRUE)
+bamfiles &lt;- dir(path, "*.bam$", full.name=TRUE)
+gals &lt;- lapply(bamfiles, function(bamfile){
+               readBamFile(bamFile=bamfile, tag=character(0), 
+                           which=GRanges("chr1", IRanges(1, 1e6)), 
+                           asMates=FALSE)
+        })
+library(TxDb.Hsapiens.UCSC.hg19.knownGene)
+txs &lt;- transcripts(TxDb.Hsapiens.UCSC.hg19.knownGene)
+plotCorrelation(GAlignmentsList(gals), txs, seqlev="chr1")
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>ATACseqQC</em> version 1.16.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

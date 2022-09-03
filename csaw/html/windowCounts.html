@@ -1,0 +1,177 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Count reads overlapping each window</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for windowCounts {csaw}"><tr><td>windowCounts {csaw}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Count reads overlapping each window</h2>
+
+<h3>Description</h3>
+
+<p>Count the number of extended reads overlapping a sliding window at spaced positions across the genome.</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+windowCounts(bam.files, spacing=50, width=spacing, ext=100, shift=0,
+	filter=10, bin=FALSE, param=readParam(), BPPARAM=SerialParam())
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>bam.files</code></td>
+<td>
+<p>A character vector containing paths to sorted and indexed BAM files.
+Alternatively, a list of <a href="../../Rsamtools/html/BamFile-class.html">BamFile</a> objects.</p>
+</td></tr>
+<tr valign="top"><td><code>spacing</code></td>
+<td>
+<p>An integer scalar specifying the distance between consecutive windows.</p>
+</td></tr>
+<tr valign="top"><td><code>width</code></td>
+<td>
+<p>An integer scalar specifying the width of the window.</p>
+</td></tr>
+<tr valign="top"><td><code>ext</code></td>
+<td>
+<p>An integer scalar or a list of two integer scalars/vectors, containing the average length(s) of the sequenced fragments in each library.</p>
+</td></tr>
+<tr valign="top"><td><code>shift</code></td>
+<td>
+<p>An integer scalar specifying how much the start of each window should be shifted to the left.</p>
+</td></tr>
+<tr valign="top"><td><code>filter</code></td>
+<td>
+<p>An integer scalar for the minimum count sum across libraries for each window.</p>
+</td></tr>
+<tr valign="top"><td><code>bin</code></td>
+<td>
+<p>A logical scalar indicating whether binning should be performed.</p>
+</td></tr>
+<tr valign="top"><td><code>param</code></td>
+<td>
+<p>A <a href="../../csaw/help/readParam-class.html">readParam</a> object containing read extraction parameters.</p>
+</td></tr>
+<tr valign="top"><td><code>BPPARAM</code></td>
+<td>
+<p>A <a href="../../BiocParallel/html/BiocParallelParam-class.html">BiocParallelParam</a> specifying how parallelization is to be performed across files.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>A <a href="../../SummarizedExperiment/html/RangedSummarizedExperiment-class.html">RangedSummarizedExperiment</a> object is returned containing one integer matrix. 
+Each entry of the matrix contains the count for each library (column) at each window (row).
+The coordinates of each window are stored as the <code>rowRanges</code>.
+The total number of reads in each library are stored as <code>totals</code> in the <code>colData</code>, along with the read (<code>rlen</code>) and extension lengths (<code>ext</code>) for each library.
+Other window counting parameters (e.g., <code>spacing</code>, <code>width</code>, <code>param</code>) are stored in the <code>metadata</code>.
+</p>
+
+
+<h3>Defining the sliding windows</h3>
+
+<p>A window is defined as a genomic interval of size equal to <code>width</code>. 
+The value of <code>width</code> can be interpreted as the width of the contact area between the DNA and protein. 
+In practical terms, it determines the spatial resolution of the analysis. Larger windows count reads over a larger region which results in larger counts. 
+This results in greater detection power at the cost of resolution.
+</p>
+<p>By default, the first window on a chromosome starts at base position 1.
+This can be shifted to the left by specifying an appropriate value for <code>shift</code>.
+New windows are defined by sliding the current window to the right by the specified <code>spacing</code>.
+Increasing <code>spacing</code> will reduce the frequency at which counts are extracted from the genome. 
+This results in some loss of resolution but it may be necessary when machine memory is limited. 
+</p>
+<p>If <code>bin</code> is set, settings are internally adjusted so that all reads are counted into non-overlapping adjacent bins of size <code>width</code>. 
+Specifically, <code>spacing</code> is set to <code>width</code> and <code>filter</code> is capped at a maximum value of 1 (empty bins can be retained with <code>filter=0</code>).
+Only the 5' end of each read or the midpoint of each fragment (for paired-end data) is used in counting.
+</p>
+
+
+<h3>Read extraction and counting</h3>
+
+ 
+<p>Read extraction from the BAM files is governed by the <code>param</code> argument.
+This specifies whether reads are to be read in single- or paired-end mode, whether to apply a threshold to the mapping quality, and so on &ndash; see <code>?<a href="../../csaw/help/readParam.html">readParam</a></code> for details.
+The strandedness of the output <code>rowRanges</code> is set based on the strand(s) from which the reads are extracted and counted.
+This is determined by the value of the <code>forward</code> slot in the input <code>param</code> object.
+</p>
+<p>Fragments are inferred from reads by directional extension in single-end data (see below) 
+or by identifying proper pairs in paired-end data (see <code><a href="../../csaw/help/readParam.html">readParam</a></code> and <code><a href="../../csaw/help/getPESizes.html">getPESizes</a></code> for more details).
+The number of fragments overlapping the window for each library is then counted for each window position. 
+Windows will be removed if the count sum across all libraries is below <code>filter</code>. 
+This reduces the memory footprint of the output by not returning empty or near-empty windows, which are usually uninteresting anyway. 
+</p>
+
+
+<h3>Elaborating on directional extension</h3>
+
+<p>For single-end reads, directional extension is performed whereby each read is extended from its 3' end to the average fragment length, i.e., <code>ext</code>.
+This obtains a rough estimate of the interval of the fragment from which the read was derived.
+It is particularly useful for TF data, where extension specifically increases the coverage of peaks that exhibit strand bimodality.
+No extension is performed if <code>ext</code> is set to <code>NA</code>, such that the read length is used as the fragment length in that library.
+</p>
+<p>If libraries have different fragment lengths, this can be accommodated by supplying a list of 2 elements to <code>ext</code>.
+The first element (named <code>init.ext</code> here, for convenience) should be an integer vector specifying the extension length for each library.
+The second element (<code>final.ext</code>) should be an integer scalar specifying the final fragment length.
+All reads are directionally extended by <code>init.ext</code>, and the resulting fragment is resized to <code>final.ext</code> by shrinking or expanding from the fragment midpoint.
+For a bimodal peak, scaling effectively aligns the subpeaks on a given strand across all libraries to a common location.
+This removes the most obvious differences in widths.
+</p>
+<p>If any element of <code>init.ext</code> is <code>NA</code>, no extension is performed for the corresponding library.
+If <code>final.ext</code> is set to <code>NA</code>, no rescaling is performed from the library-specific fragment lengths.
+Values of <code>init.ext</code> are stored as the <code>ext</code> field in the <code>colData</code> of the output object, while <code>final.ext</code> is stored in the <code>metadata</code>.
+</p>
+
+
+<h3>Comments on ext for paired-end data</h3>
+
+<p>Directional extension is not performed for paired-end data, so the values in <code>ext</code> are not used directly.
+Hwoever, rescaling can still be performed to standardize fragment lengths across libraries by resizing each fragment from its midpoint.
+This will use the second element of <code>ext</code> as <code>final.ext</code>, if <code>ext</code> is specified as a list of length 2.
+</p>
+<p>On a similar note, some downstream functions will use the extension length in the output <code>colData</code> as the average fragment length.
+Thus, to maintain compatibility, the <code>ext</code> field in <code>colData</code> is set to the average of the inferred fragment lengths for valid read pairs. 
+These values will not be used in <code>windowCounts</code>, but instead, in functions like <code><a href="../../csaw/help/getWidths.html">getWidths</a></code>.
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p>Aaron Lun</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="../../csaw/help/correlateReads.html">correlateReads</a></code>,
+<code><a href="../../csaw/help/readParam.html">readParam</a></code>,
+<code><a href="../../csaw/help/getPESizes.html">getPESizes</a></code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+# A low filter is only used here as the examples have very few reads.
+bamFiles &lt;- system.file("exdata", c("rep1.bam", "rep2.bam"), package="csaw")
+windowCounts(bamFiles, filter=1)
+windowCounts(bamFiles, width=100, filter=1)
+
+# Multiple extension lengths.
+windowCounts(bamFiles, ext=list(c(50, 100), NA), filter=1)
+windowCounts(bamFiles, ext=list(c(50, 100), 80), filter=1)
+
+# Loading PE data.
+bamFile &lt;- system.file("exdata", "pet.bam", package="csaw")
+windowCounts(bamFile, param=readParam(pe="both"), filter=1)
+windowCounts(bamFile, param=readParam(pe="first"), filter=1)
+windowCounts(bamFile, param=readParam(max.frag=100, pe="both"), filter=1)
+windowCounts(bamFile, param=readParam(max.frag=100, pe="both", restrict="chrA"), filter=1)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>csaw</em> version 1.26.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

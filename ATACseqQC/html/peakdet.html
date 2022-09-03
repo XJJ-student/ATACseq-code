@@ -1,0 +1,52 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Detect peak positions</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for peakdet {ATACseqQC}"><tr><td>peakdet {ATACseqQC}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Detect peak positions</h2>
+
+<h3>Description</h3>
+
+<p>Detect the peaks positions and valley positions. The algorithm is modified
+from github::dgromer/peakdet
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+peakdet(y, delta = 0, silence = TRUE)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>y</code></td>
+<td>
+<p>A vector of numeric where to search peaks</p>
+</td></tr>
+<tr valign="top"><td><code>delta</code></td>
+<td>
+<p>A numeric of length 1, defining the local threshold
+for peak detection. If it is set to 0, the delta will be set to
+1/10 of the range of y.</p>
+</td></tr>
+<tr valign="top"><td><code>silence</code></td>
+<td>
+<p>logical(1). 
+If false, echo the delta value when delta is set as 0.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>A list with peakpos and valleypos. Both peakpos and valleypos are
+vectors of numeric which indicate the positions of peak or valley.
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>ATACseqQC</em> version 1.16.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

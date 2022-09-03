@@ -1,0 +1,113 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Compute fragment lengths for paired-end tags</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for getPESizes {csaw}"><tr><td>getPESizes {csaw}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Compute fragment lengths for paired-end tags</h2>
+
+<h3>Description</h3>
+
+<p>Compute the length of the sequenced fragment for each read pair in paired-end tag (PE) data.</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+getPESizes(bam.file, param=readParam(pe="both"))
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>bam.file</code></td>
+<td>
+<p>a character string containing the file path to a sorted and indexed BAM file</p>
+</td></tr>
+<tr valign="top"><td><code>param</code></td>
+<td>
+<p>a <code>readParam</code> object containing read extraction parameters</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>This function computes a number of diagnostics for paired-end data in a supplied BAM file.
+The aims is to provide an indication of the quality of library preparation and sequencing.
+</p>
+<p>Firstly, a read is only considered to be mapped if it is not removed by <code>dedup</code>, <code>minq</code>, <code>restrict</code> or <code>discard</code> in <code><a href="../../csaw/help/readParam.html">readParam</a></code>.
+Otherwise, the alignment is not considered to be reliable.
+Any read pair with exactly one unmapped read is discarded, and the number of read pairs lost in this manner is recorded.
+Obviously, read pairs with both reads unmapped will be ignored completely, as will any unpaired reads in the BAM file.
+Secondary and supplementary alignments are ignored completely and do not contribute to the total - see <code><a href="../../csaw/help/readParam.html">readParam</a></code> for details.
+</p>
+<p>Of the mapped pairs, the valid (i.e., proper) read pairs are identified.
+This involves several criteria:
+</p>
+
+<ul>
+<li><p> Read pairs must be intrachromosomal.
+If the reads are on different chromosomes, the read pair will be recorded as being interchromosomal.
+</p>
+</li>
+<li><p> The two reads in the pair must lie on opposite strands.
+Otherwise, the read pair will be considered as being improperly orientated.
+</p>
+</li>
+<li><p> The 5' end of the forward read must not map to a higher genomic coordinate than the 5' end of the reverse read.
+Otherwise, the read pair will be considered as being improperly orientated.
+</p>
+</li></ul>
+
+<p>Note that the 3' end of one read is allowed to overrun the 5' end of the other.
+This avoids being too stringent in the presence of sequencing errors, untrimmed adaptors, etc. at the start or ends of reads.
+</p>
+<p>Each valid read pair corresponds to a DNA fragment where both ends are sequenced. 
+The size of the fragment can be determined by calculating the distance between the 5' ends of the mapped reads. 
+The distribution of sizes is useful for assessing the quality of the library preparation, along with all of the recorded diagnostics. 
+Note that any <code>max.frag</code> specification in <code>param</code> will be ignored; sizes for all valid pairs will be returned.
+</p>
+
+
+<h3>Value</h3>
+
+<p>A list containing:
+</p>
+<table summary="R valueblock">
+<tr valign="top"><td><code>sizes</code></td>
+<td>
+<p>an integer vector of fragment lengths for all valid read pairs in the library</p>
+</td></tr>
+<tr valign="top"><td><code>diagnostics</code></td>
+<td>
+<p>an integer vector containing the total number of reads, the number of mapped reads, number of mapped singleton reads, pairs with exactly one unmapped read,
+number of improperly orientated read pairs and interchromosomal pairs</p>
+</td></tr>
+</table>
+
+
+<h3>Author(s)</h3>
+
+<p>Aaron Lun</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="../../csaw/help/readParam.html">readParam</a></code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+bamFile &lt;- system.file("exdata", "pet.bam", package="csaw")
+out &lt;- getPESizes(bamFile, param=readParam(pe="both"))
+out &lt;- getPESizes(bamFile, param=readParam(pe="both", restrict="chrA"))
+out &lt;- getPESizes(bamFile, param=readParam(pe="both", discard=GRanges("chrA", IRanges(1, 50))))
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>csaw</em> version 1.26.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

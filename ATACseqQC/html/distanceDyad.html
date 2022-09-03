@@ -1,0 +1,82 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Distance of potential nucleosome dyad</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for distanceDyad {ATACseqQC}"><tr><td>distanceDyad {ATACseqQC}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Distance of potential nucleosome dyad</h2>
+
+<h3>Description</h3>
+
+<p>Calculate the distance of potential nucleosome dyad and the linear model for V.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+distanceDyad(vPlotOut, fragLenRanges = c(60, 180, 250), draw = TRUE, ...)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>vPlotOut</code></td>
+<td>
+<p>The output of <a href="../../ATACseqQC/help/vPlot.html">vPlot</a>.</p>
+</td></tr>
+<tr valign="top"><td><code>fragLenRanges</code></td>
+<td>
+<p>A numeric vector (length=3) for fragment size of nucleosome free and mono-nucleosome.
+Default c(60, 180, 250).</p>
+</td></tr>
+<tr valign="top"><td><code>draw</code></td>
+<td>
+<p>Plot the results or not. Default TRUE.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Prameters could be passed to plot.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>an invisible list with distance of nucleosome and the linear model.
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p>Jianhong Ou
+</p>
+
+
+<h3>See Also</h3>
+
+<p><a href="../../ATACseqQC/help/vPlot.html">vPlot</a>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+bamfile &lt;- system.file("extdata", "GL1.bam",
+                       package="ATACseqQC")
+library(MotifDb)
+CTCF &lt;- query(MotifDb, c("CTCF"))
+CTCF &lt;- as.list(CTCF)
+library(BSgenome.Hsapiens.UCSC.hg19)
+vp &lt;- vPlot(bamfile, pfm=CTCF[[1]],
+     genome=Hsapiens,
+     min.score="95%", seqlev="chr1",
+     draw=FALSE)
+distanceDyad(vp)
+     
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>ATACseqQC</em> version 1.16.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

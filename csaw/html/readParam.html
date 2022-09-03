@@ -1,0 +1,178 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: readParam class and methods</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for readParam {csaw}"><tr><td>readParam {csaw}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>readParam class and methods</h2>
+
+<h3>Description</h3>
+
+<p>Class to specify read loading parameters</p>
+
+
+<h3>Details</h3>
+
+<p>Each readParam object stores a number of parameters, each pertaining to the extraction of reads from a BAM file.
+Slots are defined as:
+</p>
+
+<dl>
+<dt><code>pe</code>:</dt><dd><p>A string indicating whether paired-end data is present; set to <code>"none"</code>, <code>"both"</code>, <code>"first"</code> or <code>"second"</code>.</p>
+</dd>
+<dt><code>max.frag</code>:</dt><dd><p>An integer scalar, specifying the maximum fragment length corresponding to a read pair.</p>
+</dd>
+<dt><code>dedup</code>:</dt><dd><p>A logical scalar indicating whether marked duplicate reads should be ignored.</p>
+</dd>
+<dt><code>minq</code>:</dt><dd><p>An integer scalar, specifying the minimum mapping quality score for an aligned read.</p>
+</dd>
+<dt><code>forward</code>:</dt><dd><p>A logical scalar indicating whether only forward reads should be extracted.</p>
+</dd>
+<dt><code>restrict</code>:</dt><dd><p>A character vector containing the names of allowable chromosomes from which reads will be extracted.</p>
+</dd>
+<dt><code>discard</code>:</dt><dd><p>A <a href="../../GenomicRanges/html/GRanges-class.html">GRanges</a> object containing intervals in which any alignments will be discarded.</p>
+</dd>
+</dl>
+
+
+
+<h3>Removing low-quality or irrelevant reads</h3>
+
+<p>Marked duplicate reads will be removed with <code>dedup=TRUE</code>.
+This may be necessary when many rounds of PCR have been performed during library preparation.
+However, it is not recommended for routine counting as it will interfere with the downstream statistical methods.
+Note that the duplicate field must be set beforehand in the BAM file for this argument to have any effect.
+</p>
+<p>Reads can also be filtered by their mapping quality scores if <code>minq</code> is specified at a non-<code>NA</code> value.  
+This is generally recommended to remove low-confidence alignments. 
+The exact threshold for <code>minq</code> will depend on the range of scores provided by the aligner. 
+If <code>minq=NA</code>, no filtering on the score will be performed.
+</p>
+<p>If <code>restrict</code> is supplied, reads will only be extracted for the specified chromosomes. 
+This is useful to restrict the analysis to interesting chromosomes, e.g., no contigs/scaffolds or mitochondria. 
+Conversely, if <code>discard</code> is set, a read will be removed if the corresponding alignment is wholly contained within the supplied ranges. 
+This is useful for removing reads in repeat regions. 
+</p>
+<p>Note that secondary or supplementary alignments are ignored in all functions.
+The former usually refer to alternative mapping locations for the same read, while the latter refer to chimeric reads.
+Neither are of much use in a typical ChIP-seq analysis and will be discarded if they are present in the BAM file.
+</p>
+
+
+<h3>Parameter settings for paired-end data</h3>
+
+<p>For <code>pe="both"</code>, reads are extracted with the previously described filters, i.e., <code>discard</code>, <code>minq</code>, <code>dedup</code>.
+Extracted reads are then grouped into proper pairs.
+Proper pairs are those where the two reads are close together (on the same chromosome, obviously) and in an inward-facing orientation. 
+The fragment interval is defined as that bounded by the 5' ends of the two reads in a proper pair.
+</p>
+<p>The fragment size is defined as the length of the interval bounded by the 5' ends of two inward-facing reads.
+Those pairs with fragment sizes above <code>max.frag</code> are removed, as they are more likely to be the result of mapping errors than genuinely large fragment sizes.
+Users should run <code><a href="../../csaw/help/getPESizes.html">getPESizes</a></code> to pick an appropriate value for their data sets, though thresholds of around 500-1000 bp are usually fine.
+</p>
+<p>Paired-end data can also be treated as single-end data by only using one read from each pair with <code>pe="first"</code> or <code>"second"</code>.  
+This is useful for poor-quality data where the paired-end procedure has obviously failed, e.g., with many interchromosomal read pairs or pairs with large fragment lengths.
+Treating the data as single-end may allow the analysis to be salvaged.
+</p>
+<p>In all cases, users should ensure that each BAM file containing paired-end data is properly synchronized prior to count loading.
+This can be done using standard tools like FixMateInformation from the Picard suite (http://broadinstitute.github.io/picard).
+</p>
+
+
+<h3>Parameter settings for single-end data</h3>
+
+<p>If <code>pe="none"</code>, reads are assumed to be single-end.
+Read extraction from BAM files is performed with the same quality filters described above.
+If <code>forward</code> is <code>NA</code>, reads are extracted from all strands.
+Otherwise, reads are only extracted from the forward or reverse strands for <code>TRUE</code> or <code>FALSE</code>, respectively.
+This may be useful for applications requiring strand-specific counting.
+A special case is <code>forward=NULL</code> - see <code><a href="../../csaw/help/strandedCounts.html">strandedCounts</a></code> for more details.
+</p>
+<p>Any soft clipping in alignments are ignored during extraction (this is also true for paired-end data).
+Soft clips are presumed to be sequencing artifacts, e.g., when the adaptor or barcodes are not properly removed from the read sequence.
+They are not relevant to computing genomic coverage.
+Thus, in this package, any references to the length or 5'/3' ends of the read will actually refer to that of the <em>alignment</em>.
+This is often more appropriate, e.g., the 5' end of the alignment represents the end of the fragment after clipping of the artifacts.
+</p>
+
+
+<h3>Constructor</h3>
+
+
+<dl>
+<dt></dt><dd><p><code>readParam(pe="none", max.frag=500, dedup=FALSE, minq=NA, forward=NA, restrict=NULL, discard=GRanges())</code>:
+Creates a readParam object. 
+Each argument is placed in the corresponding slot, with coercion into the appropriate type.
+</p>
+</dd>
+</dl>
+
+
+
+<h3>Subsetting</h3>
+
+<p>In the code snippes below, <code>x</code> is a readParam object.
+</p>
+
+<dl>
+<dt></dt><dd><p><code>x$name</code>: 
+Returns the value in slot <code>name</code>.
+</p>
+</dd>
+</dl>
+
+
+
+<h3>Other methods</h3>
+
+<p>In the code snippets below, <code>x</code> is a readParam object.
+</p>
+
+<dl>
+<dt></dt><dd><p><code>show(x)</code>:
+Describes the parameter settings in plain English.
+</p>
+</dd>
+<dt></dt><dd><p><code>reform(x, ...)</code>:
+Creates a new readParam object, based on the existing <code>x</code>.
+Any named arguments in <code>...</code> are used to modify the values of the slots in the new object, with type coercion as necessary.
+</p>
+</dd>
+</dl>
+	
+
+
+<h3>Author(s)</h3>
+
+<p>Aaron Lun
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="../../csaw/help/windowCounts.html">windowCounts</a></code>,
+<code><a href="../../csaw/help/regionCounts.html">regionCounts</a></code>,
+<code><a href="../../csaw/help/correlateReads.html">correlateReads</a></code>,
+<code><a href="../../csaw/help/getPESizes.html">getPESizes</a></code>,
+<code><a href="../../BiocParallel/html/BiocParallelParam-class.html">BiocParallelParam</a></code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+blah &lt;- readParam()
+blah &lt;- readParam(discard=GRanges("chrA", IRanges(1, 10)))
+blah &lt;- readParam(restrict='chr2')
+blah$pe
+blah$dedup
+
+# Use 'reform' if only some arguments need to be changed.
+blah
+reform(blah, dedup=TRUE)
+reform(blah, pe="both", max.frag=212.0)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>csaw</em> version 1.26.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

@@ -1,0 +1,105 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: read in bam files</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for readBamFile {ATACseqQC}"><tr><td>readBamFile {ATACseqQC}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>read in bam files</h2>
+
+<h3>Description</h3>
+
+<p>wraper for readGAlignments/readGAlignmentsList to read in bam files.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+readBamFile(
+  bamFile,
+  which,
+  tag = character(0),
+  what = c("qname", "flag", "mapq", "isize", "seq", "qual", "mrnm"),
+  flag = scanBamFlag(isSecondaryAlignment = FALSE, isUnmappedQuery = FALSE,
+    isNotPassingQualityControls = FALSE, isSupplementaryAlignment = FALSE),
+  asMates = FALSE,
+  bigFile = FALSE,
+  ...
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>bamFile</code></td>
+<td>
+<p>character(1). Bam file name.</p>
+</td></tr>
+<tr valign="top"><td><code>which</code></td>
+<td>
+<p>A <a href="../../GenomicRanges/help/GRanges-class.html">GRanges</a>, <a href="../../IRanges/help/IntegerRangesList-class.html">IntegerRangesList</a>, 
+or any object that can be coerced to a RangesList, or missing object, 
+from which a IRangesList instance will be constructed. 
+See <a href="../../Rsamtools/help/ScanBamParam-class.html">ScanBamParam</a>.</p>
+</td></tr>
+<tr valign="top"><td><code>tag</code></td>
+<td>
+<p>A vector of characters indicates the tag names to be read.
+See <a href="../../Rsamtools/help/ScanBamParam-class.html">ScanBamParam</a>.</p>
+</td></tr>
+<tr valign="top"><td><code>what</code></td>
+<td>
+<p>A character vector naming the fields to return. 
+Fields are described on the <a href="../../Rsamtools/html/Rsamtools-package.html">Rsamtools</a>[scanBam] help page.</p>
+</td></tr>
+<tr valign="top"><td><code>flag</code></td>
+<td>
+<p>An integer(2) vector used to filter reads based on their 
+'flag' entry.</p>
+</td></tr>
+<tr valign="top"><td><code>asMates</code></td>
+<td>
+<p>logical(1). Paired ends or not</p>
+</td></tr>
+<tr valign="top"><td><code>bigFile</code></td>
+<td>
+<p>If the file take too much memory, set it to true to avoid read the reads into memory.
+<a href="../../Rsamtools/help/ScanBamParam-class.html">scanBamFlag</a> helper function.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>parameters used by <a href="../../GenomicAlignments/help/readGAlignments.html">readGAlignmentsList</a> 
+or <a href="../../GenomicAlignments/help/readGAlignments.html">readGAlignments</a></p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>A GAlignmentsList object when asMates=TRUE,
+otherwise A GAlignments object.
+If bigFile is set to TRUE, no reads will be read into memory at this step and 
+empty GAlignments/GAlignmentsList will be returned.
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p>Jianhong Ou
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+library(BSgenome.Hsapiens.UCSC.hg19)
+which &lt;- as(seqinfo(Hsapiens)["chr1"], "GRanges")
+bamfile &lt;- system.file("extdata", "GL1.bam", 
+                       package="ATACseqQC", mustWork=TRUE)
+readBamFile(bamfile, which=which, asMates=TRUE)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>ATACseqQC</em> version 1.16.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

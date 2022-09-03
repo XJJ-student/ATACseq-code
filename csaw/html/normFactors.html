@@ -1,0 +1,134 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Scaling normalization across libraries</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for normFactors {csaw}"><tr><td>normFactors {csaw}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Scaling normalization across libraries</h2>
+
+<h3>Description</h3>
+
+<p>Calculate normalization factors using count data from multiple libraries.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+normFactors(
+  object,
+  method = NULL,
+  weighted = FALSE,
+  ...,
+  assay.id = "counts",
+  se.out = TRUE
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>object</code></td>
+<td>
+<p>A <a href="../../SummarizedExperiment/html/SummarizedExperiment-class.html">SummarizedExperiment</a> object containing a count matrix and library sizes in the <code>totals</code> field of the <code><a href="../../GenoGAM/html/GenoGAM-class.html">colData</a></code>.
+</p>
+<p>Alternatively, a <a href="../../DEFormats/html/DGEList.html">DGEList</a> object containing a count matrix in <code>object$counts</code> and library sizes in <code>object$samples$lib.size</code>.
+</p>
+<p>Alternatively, an ordinary matrix containing counts.</p>
+</td></tr>
+<tr valign="top"><td><code>method</code></td>
+<td>
+<p>Deprecated argument, ignored.</p>
+</td></tr>
+<tr valign="top"><td><code>weighted</code></td>
+<td>
+<p>A logical scalar indicating whether precision weights should be used for TMM normalization.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Other arguments to be passed to <code><a href="../../TCC/html/calcNormFactors.html">calcNormFactors</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>assay.id</code></td>
+<td>
+<p>An integer scalar or string specifying the assay values to use for normalization.</p>
+</td></tr>
+<tr valign="top"><td><code>se.out</code></td>
+<td>
+<p>A logical scalar indicating whether or not a SummarizedExperiment object should be returned.
+</p>
+<p>Alternatively, a SummarizedExperiment or DGEList object in which normalization factors are to be stored.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>This function uses the trimmed mean of M-values (TMM) method to remove composition biases, typically in background regions of the genome.
+The key difference from standard TMM is that precision weighting is turned off by default so as to avoid upweighting high-abundance regions. 
+These are more likely to be bound and thus more likely to be differentially bound. 
+Assigning excessive weight to such regions will defeat the purpose of trimming when normalizing the coverage of background regions.
+</p>
+
+
+
+<p>The normalization factors are always computed from <code>object</code>.
+However, if <code>se.out</code> is a (different) SummarizedExperiment object, these factors are stored in <code>se.out</code> and the modified object.
+This is useful when <code>se.out</code> contains counts for windows, but the normalization factors are computed using larger bins in <code>object</code>.
+The same logic applies when <code>se.out</code> is a (different) DGEList object.
+</p>
+<p>Note that an error is raised if the library sizes in <code>se.out</code> are not identical to <code>object$totals</code>.
+This is because the normalization factors are only comparable when the library sizes are the same.
+Consistent library sizes can be achieved by using the same <code><a href="../../csaw/help/readParam.html">readParam</a></code> object in <code><a href="../../csaw/help/windowCounts.html">windowCounts</a></code> and related functions.
+</p>
+
+
+<h3>Value</h3>
+
+<p>If <code>se.out=FALSE</code>, a numeric vector containing the relative normalization factors for each library.
+</p>
+<p>If <code>se.out=TRUE</code>, the same vector is stored in the <code>norm.factors</code> field of <code>mcols(object)</code> (if <code>object</code> is a SummarizedExperiment)
+or <code>object$samples</code> (if <code>object</code> is a DGEList) and the modified <code>object</code> is returned.
+</p>
+<p>If <code>se.out</code> is a separate SummarizedExperiment or DGEList object, 
+the normalization factors are stored inside <code>se.out</code> and the modified object is returned.
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p>Aaron Lun
+</p>
+
+
+<h3>References</h3>
+
+<p>Robinson MD, Oshlack A (2010). 
+A scaling normalization method for differential expression analysis of RNA-seq data. 
+<em>Genome Biology</em> 11, R25.
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="../../TCC/html/calcNormFactors.html">calcNormFactors</a></code>, for the base method.
+</p>
+<p><code><a href="../../csaw/help/normOffsets.html">normOffsets</a></code>, for the trended normalization strategy.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+counts &lt;- matrix(rnbinom(400, mu=10, size=20), ncol=4)
+data &lt;- SummarizedExperiment(list(counts=counts))
+data$totals &lt;- colSums(counts)
+
+# TMM normalization.
+normFactors(data)
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>csaw</em> version 1.26.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

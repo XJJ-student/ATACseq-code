@@ -1,0 +1,61 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: export list of GAlignments into bam files</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for writeListOfGAlignments {ATACseqQC}"><tr><td>writeListOfGAlignments {ATACseqQC}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>export list of GAlignments into bam files</h2>
+
+<h3>Description</h3>
+
+<p>wraper for <a href="../../BiocIO/help/export.html">export</a> to export list of 
+GAlignment into bam files.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+writeListOfGAlignments(objs, outPath = ".")
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>objs</code></td>
+<td>
+<p>A list of <a href="../../GenomicAlignments/help/GAlignments-class.html">GAlignments</a>.</p>
+</td></tr>
+<tr valign="top"><td><code>outPath</code></td>
+<td>
+<p>character(1). Output file path.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>status of export.
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p>Jianhong Ou
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+library(GenomicAlignments)
+gal1 &lt;- GAlignments(seqnames=Rle("chr1"), pos=1L, cigar="10M",
+                    strand=Rle(strand(c("+"))), names="a", score=1)
+galist &lt;- GAlignmentsList(a=gal1)
+writeListOfGAlignments(galist)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>ATACseqQC</em> version 1.16.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

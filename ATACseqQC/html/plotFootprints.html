@@ -1,0 +1,109 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Plots a footprint estimated by Centipede</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for plotFootprints {ATACseqQC}"><tr><td>plotFootprints {ATACseqQC}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Plots a footprint estimated by Centipede</h2>
+
+<h3>Description</h3>
+
+<p>Visualizing the footprint profile
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+plotFootprints(
+  Profile,
+  Mlen = 0,
+  xlab = "Dist. to motif (bp)",
+  ylab = "Cut-site probability",
+  legLabels = c("For. strand", "Rev. strand"),
+  legTitle,
+  xlim,
+  ylim,
+  newpage = TRUE,
+  motif,
+  segmentation
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>Profile</code></td>
+<td>
+<p>A vector with the profile estimated by CENTIPEDE</p>
+</td></tr>
+<tr valign="top"><td><code>Mlen</code></td>
+<td>
+<p>Length of the motif for drawing vertical lines delimiting it</p>
+</td></tr>
+<tr valign="top"><td><code>xlab</code></td>
+<td>
+<p>Label of the x axis</p>
+</td></tr>
+<tr valign="top"><td><code>ylab</code></td>
+<td>
+<p>Label for the y axis</p>
+</td></tr>
+<tr valign="top"><td><code>legLabels</code></td>
+<td>
+<p>Labels for legend.</p>
+</td></tr>
+<tr valign="top"><td><code>legTitle</code></td>
+<td>
+<p>Title for one of the plot corners</p>
+</td></tr>
+<tr valign="top"><td><code>xlim</code></td>
+<td>
+<p>xlim</p>
+</td></tr>
+<tr valign="top"><td><code>ylim</code></td>
+<td>
+<p>ylim</p>
+</td></tr>
+<tr valign="top"><td><code>newpage</code></td>
+<td>
+<p>Plot the figure in a new page?</p>
+</td></tr>
+<tr valign="top"><td><code>motif</code></td>
+<td>
+<p>a pfm object.</p>
+</td></tr>
+<tr valign="top"><td><code>segmentation</code></td>
+<td>
+<p>the segmentation position and abundance</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>Null.
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p>Jianhong Ou
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+library(MotifDb)
+CTCF &lt;- query(MotifDb, c("CTCF"))
+CTCF &lt;- as.list(CTCF)
+motif &lt;- new("pfm", mat=CTCF[[1]], name="CTCF")
+ATACseqQC:::plotFootprints(Profile=sample.int(500), 
+                        Mlen=ncol(CTCF[[1]]), motif=motif)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>ATACseqQC</em> version 1.16.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

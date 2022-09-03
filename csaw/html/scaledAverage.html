@@ -1,0 +1,128 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Scaled average abundance</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for scaledAverage {csaw}"><tr><td>scaledAverage {csaw}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Scaled average abundance</h2>
+
+<h3>Description</h3>
+
+<p>Compute the scaled average abundance for each feature.</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+scaledAverage(y, scale=1, prior.count=NULL, dispersion=NULL, assay.id="counts")
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>y</code></td>
+<td>
+<p>A <a href="../../SummarizedExperiment/html/SummarizedExperiment-class.html">SummarizedExperiment</a> object containing a count matrix.</p>
+</td></tr>
+<tr valign="top"><td><code>scale</code></td>
+<td>
+<p>a numeric scalar vector indicating the magnitude with which each abundance is to be downscaled</p>
+</td></tr>
+<tr valign="top"><td><code>prior.count</code></td>
+<td>
+<p>a numeric scalar specifying the prior count to add</p>
+</td></tr>
+<tr valign="top"><td><code>dispersion</code></td>
+<td>
+<p>a numeric scalar or vector specifying the dispersion for GLM fitting.</p>
+</td></tr>
+<tr valign="top"><td><code>assay.id</code></td>
+<td>
+<p>A string or integer scalar indicating which assay of <code>y</code> contains the counts.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>This function computes the average abundance of each feature in <code>y</code>, and downscales it according to <code>scale</code>.
+For example, if <code>scale=2</code>, the average count is halved, i.e., the returned abundances are decreased by 1 (as they are log2-transformed values).
+The aim is to set <code>scale</code> based on the relative width of regions, to allow abundances to be compared between regions of different size.
+Widths can be obtained using the <code><a href="../../csaw/help/getWidths.html">getWidths</a></code> function.
+</p>
+<p>This function mimics the behaviour of <code><a href="../../edgeR/html/aveLogCPM.html">aveLogCPM</a></code> but handles the <code>prior.count</code> with some subtlety.
+Specifically, it scales up the prior count by <code>scale</code> before adding it to the counts.
+This ensures that the &ldquo;effective&rdquo; prior is the same after the abundance is scaled down.
+Otherwise, the use of the same prior would incorrectly result in a smaller abundance for larger regions, regardless of the read density.
+</p>
+<p>An additional difference from <code><a href="../../edgeR/html/aveLogCPM.html">aveLogCPM</a></code> is that the prior count is <em>not</em> scaled up before being added to the library sizes/offsets.
+(See <code><a href="../../edgeR/html/addPriorCount.html">addPriorCount</a></code> for more details.)
+This ensures that the modified offsets do not depend on <code>scale</code>, which allows abundances to be compared between regions of differing size.
+Otherwise, larger regions with greater <code>scale</code> would always have (slightly) larger modified offsets and lower abundances than appropriate.
+</p>
+<p>Note that the adjustment for width assumes that reads are uniformly distributed throughout each region.
+This is reasonable for most background regions, but may not be for enriched regions.
+When the distribution is highly heterogeneous, the downscaled abundance of a large region will not be an accurate representation of the abundance of the smaller regions nested within.
+</p>
+
+
+
+
+
+<p>For consistency, the <code>prior.count</code> is set to the default value of <code><a href="../../edgeR/html/aveLogCPM.html">aveLogCPM.DGEList</a></code>, if it is not otherwise specified.
+If a non-default value is used, make sure that it is the same for all calls to <code>scaledAverage</code>.
+This ensures that comparisons between the returned values are valid.
+</p>
+
+
+<h3>Value</h3>
+
+<p>A numeric vector of scaled abundances, with one entry for each row of <code>y</code>.
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p>Aaron Lun
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="../../csaw/help/getWidths.html">getWidths</a></code>,
+<code><a href="../../edgeR/html/aveLogCPM.html">aveLogCPM</a></code>,
+<code><a href="../../edgeR/html/addPriorCount.html">addPriorCount</a></code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+bamFiles &lt;- system.file("exdata", c("rep1.bam", "rep2.bam"), package="csaw")
+size1 &lt;- 50
+data1 &lt;- windowCounts(bamFiles, width=size1, filter=1)
+size2 &lt;- 500
+data2 &lt;- windowCounts(bamFiles, width=size2, filter=1)
+
+# Adjusting by `scale`, based on median sizes.
+head(scaledAverage(data1))
+relative &lt;- median(getWidths(data2))/median(getWidths(data1))
+head(scaledAverage(data2, scale=relative))
+
+# Need to make sure the same prior is used, if non-default.
+pc &lt;- 5
+head(scaledAverage(data1, prior.count=pc))
+head(scaledAverage(data2, scale=relative, prior.count=pc))
+
+# Different way to compute sizes, for 1-to-1 relations.
+data3 &lt;- regionCounts(bamFiles, regions=resize(rowRanges(data1),   
+    fix="center", width=size2))
+head(scaledAverage(data1))
+relative.2 &lt;- getWidths(data1)/getWidths(data2)
+head(scaledAverage(data3), scale=relative.2)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>csaw</em> version 1.26.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

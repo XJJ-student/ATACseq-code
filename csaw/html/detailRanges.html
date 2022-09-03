@@ -1,0 +1,134 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Add annotation to ranges</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for detailRanges {csaw}"><tr><td>detailRanges {csaw}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Add annotation to ranges</h2>
+
+<h3>Description</h3>
+
+<p>Add detailed exon-based annotation to specified genomic regions.</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+detailRanges(incoming, txdb, orgdb, dist=5000, promoter=c(3000, 1000), 
+    key.field="ENTREZID", name.field="SYMBOL", ignore.strand=TRUE)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>incoming</code></td>
+<td>
+<p>A <a href="../../GenomicRanges/html/GRanges-class.html">GRanges</a> object containing the ranges to be annotated.</p>
+</td></tr>
+<tr valign="top"><td><code>txdb</code></td>
+<td>
+<p>A TxDb object for the genome of interest.</p>
+</td></tr>
+<tr valign="top"><td><code>orgdb</code></td>
+<td>
+<p>An OrgDb object for the genome of interest.</p>
+</td></tr>
+<tr valign="top"><td><code>dist</code></td>
+<td>
+<p>An integer scalar specifying the flanking distance to annotate.</p>
+</td></tr>
+<tr valign="top"><td><code>promoter</code></td>
+<td>
+<p>An integer vector of length 2, where first and second values define the promoter as some distance upstream and downstream from the TSS, respectively.</p>
+</td></tr>
+<tr valign="top"><td><code>key.field</code></td>
+<td>
+<p>A character scalar specifying the key type in <code>orgdb</code> corresponding to the gene IDs in <code>txdb</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>name.field</code></td>
+<td>
+<p>A character scalar specifying the column from <code>orgdb</code> to use as the gene name.</p>
+</td></tr>
+<tr valign="top"><td><code>ignore.strand</code></td>
+<td>
+<p>A logical scalar indicating whether strandedness in <code>incoming</code> should be ignored.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>This function adds annotations to a given set of genomic regions in the form of compact character strings specifying the features overlapping and flanking each region.
+The aim is to determine the genic context of empirically identified regions, for some basic biological interpretation of binding/marking in those regions. 
+All neighboring genes within a specified range are reported, rather than just the closest gene to the region.
+If a region in <code>incoming</code> is stranded and <code>ignore.strand=FALSE</code>, annotated features will only be reported if they lie on the same strand as that region.
+</p>
+<p>If <code>incoming</code> is missing, then the annotation will be provided directly to the user in the form of a <a href="../../GenomicRanges/html/GRanges-class.html">GRanges</a> object. 
+This may be more useful when further work on the annotation is required.
+Features are labelled as exons (<code>"E"</code>), promoters (<code>"P"</code>) or gene bodies (<code>"G"</code>).
+Overlaps to introns can be identified by finding those regions that overlap with gene bodies but not with any of the corresponding exons.
+</p>
+<p>The default settings for <code>key.field</code> and <code>name.field</code> will work for human and mouse genomes, but may not work for other organisms.
+The <code>key.field</code> should specify the key type in the <code>orgdb</code> object that corresponds to the gene IDs of the <code>txdb</code> object.
+For example, in S. cerevisiae, <code>key.field</code> is set to <code>"ORF"</code> to match the gene IDs in the corresponding TxDb object,
+while <code>name.field</code> is set to <code>"GENENAME"</code> to obtain the gene symbols.
+</p>
+
+
+<h3>Value</h3>
+
+<p>If <code>incoming</code> is not provided, a <a href="../../GenomicRanges/html/GRanges-class.html">GRanges</a> object will be returned containing ranges for the exons, promoters and gene bodies. 
+Gene keys (e.g., Entrez IDs) are povided as row names.
+Gene symbols and feature types are stored as metadata.
+</p>
+<p>If <code>incoming</code> is a <a href="../../GenomicRanges/html/GRanges-class.html">GRanges</a> object, a list will be returned with <code>overlap</code>, <code>left</code> and <code>right</code> elements. 
+Each element is a character vector of length equal to the number of ranges in <code>incoming</code>.
+Each non-empty string records the gene symbol, the overlapped exons and the strand. 
+For <code>left</code> and <code>right</code>, the gap between the range and the annotated feature is also included.
+</p>
+
+
+<h3>Explanation of fields</h3>
+
+<p>For annotated features overlapping a region, the character string in the <code>overlap</code> output vector will be of the form <code>GENE:STRAND:TYPE</code>. 
+<code>GENE</code> is the gene symbol by default, but reverts to the key (default Entrez ID) if no symbol is defined.
+<code>STRAND</code> is simply the strand of the gene, either <code>"+"</code> or <code>"-"</code>.
+The <code>TYPE</code> indicates the feature types that are overlapped - exon (<code>"E"</code>), promoter (<code>"P"</code>) and/or intron (<code>"I"</code>).
+Note that intron overlaps are only reported if the region does not overlap an exon directly.
+</p>
+<p>For annotated features flanking the region within a distance of <code>dist</code>, the <code>TYPE</code> is instead the distance to the feature.
+This represents the gap between the edge of the region and the closest exon for that gene.
+Flanking promoters are not reported, as it is more informative to report the distance to the exon directly;
+and flanking an intron should be impossible without overlapping an exon directly (and thus should not be reported, see above).
+Note that exons directly overlapping the supplied region are not considered for flanking annotation, as the distance would be negative.
+</p>
+<p>The strand information is often useful in conjunction with the left/right flanking features.
+For example, if an exon for a negative-strand gene is to the left, the current region must be upstream of that exon.
+Conversely, if the exon for a positive-strand gene is to the left, the region must be downstream.
+The opposite applies for features to the right of the current region.
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p>Aaron Lun</p>
+
+
+<h3>Examples</h3>
+
+<pre> 
+library(org.Mm.eg.db)
+library(TxDb.Mmusculus.UCSC.mm10.knownGene)
+
+current &lt;- readRDS(system.file("exdata", "exrange.rds", package="csaw"))
+output &lt;- detailRanges(current, orgdb=org.Mm.eg.db,
+    txdb=TxDb.Mmusculus.UCSC.mm10.knownGene) 
+head(output$overlap)
+head(output$right)
+head(output$left)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>csaw</em> version 1.26.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

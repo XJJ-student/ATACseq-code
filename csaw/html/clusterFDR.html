@@ -1,0 +1,168 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Compute the cluster-level FDR</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for clusterFDR {csaw}"><tr><td>clusterFDR {csaw}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Compute the cluster-level FDR</h2>
+
+<h3>Description</h3>
+
+<p>Compute the FDR across clusters based on the test-level FDR threshold</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+clusterFDR(ids, threshold, weights=NULL)
+
+controlClusterFDR(target, adjp, FUN, ..., weights=NULL, 
+    grid.length=21, iterations=4)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>ids</code></td>
+<td>
+<p>An integer vector of cluster IDs for each significant test below <code>threshold</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>threshold</code></td>
+<td>
+<p>A numeric scalar, specifying the FDR threshold used to define the significant tests.</p>
+</td></tr>
+<tr valign="top"><td><code>target</code></td>
+<td>
+<p>A numeric scalar specifying the desired cluster-level FDR threshold.</p>
+</td></tr>
+<tr valign="top"><td><code>adjp</code></td>
+<td>
+<p>A numeric vector of window-level adjusted p-values.</p>
+</td></tr>
+<tr valign="top"><td><code>FUN</code></td>
+<td>
+<p>A clustering function that takes a logical vector indicating which windows are significant, and returns an integer vector of cluster IDs (see below).</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Additional arguments to be passed to <code>FUN</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>weights</code></td>
+<td>
+<p>A numeric vector of frequency weights, for internal use.</p>
+</td></tr>
+<tr valign="top"><td><code>grid.length</code></td>
+<td>
+<p>Integer scalar specifying the number of points to use in the grid search.</p>
+</td></tr>
+<tr valign="top"><td><code>iterations</code></td>
+<td>
+<p>Integer scalar specifying the number of iterations of the grid search.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>For <code>clusterFDR</code>, a numeric scalar is returned as the cluster-level FDR.
+</p>
+<p>For <code>controlClusterFDR</code>, a list is returned containing two numeric scalars &ndash; <code>threshold</code>, the window-level FDR threshold to control the cluster-level FDR near <code>target</code>; and <code>FDR</code>, the estimate of the cluster-level FDR corresponding to <code>threshold</code>.
+</p>
+
+
+<h3>Definition of the cluster-level FDR</h3>
+
+<p>The <code>clusterFDR</code> function computes an informal estimate of the cluster-level FDR, where each cluster is formed by aggregating only significant tests.
+In the context of ChIP-seq, each significant test refers to a DB window that is detected at a FDR below <code>threshold</code>.
+The idea is to obtain an error rate while reporting the precise coordinates of a DB subinterval in a complex region.
+</p>
+<p>This complements the standard pipeline based on <code><a href="../../csaw/help/combineTests.html">combineTests</a></code>, which defines regions independently of the DB status of the windows.
+In a complex region, the precise coordinates of the DB subinterval cannot be reported.
+Here, we overcome this by clustering directly on DB windows and applying post-hoc control of the cluster-level FDR.
+See <code><a href="../../csaw/help/clusterWindows.html">clusterWindows</a></code> for more details.
+</p>
+<p>The cluster-level FDR is defined as the proportion of reported clusters that have no true positives.
+Simply using <code>threshold</code> on the window-level adjusted p-values is not sufficient to control this, as the cluster- and window-level FDRs are not equivalent. 
+Instead, the observed number of false positive tests is estimated based on <code>threshold</code> and the total number of significant tests, 
+and a conservative estimate for the number of false positive clusters (where all tests are true nulls) is computed.
+</p>
+<p>However, note that the calculation of the cluster-level FDR here is not statistically rigorous.
+This is not guaranteed to be an upper bound, especially with few or correlated tests. 
+Thus, users should use the standard <code><a href="../../csaw/help/combineTests.html">combineTests</a></code>-based pipeline wherever possible.
+Clustering on significant windows should only be performed where the precise coordinates of the DB subinterval are important for interpretation.
+</p>
+
+
+<h3>Searching for the best threshold</h3>
+
+<p><code>controlClusterFDR</code> will identify the window-level FDR threshold required to control the cluster-level FDR at <code>target</code>.
+The former is not a simple function of the latter (neither continuous nor guaranteed to be monotonic), so a grid search is used.
+Clusters of significant windows are identified at each window-level threshold, and the corresponding cluster-level FDR is computed with <code>clusterFDR</code>.
+</p>
+<p>The grid is initially defined with <code>grid.length</code> equally spaced points in <code>[0, target]</code>.
+At each iteration, the grid points with cluster-level FDRs above and below <code>target</code> are chosen, and the grid is redefined within that interval.
+This is repeated for <code>iterations</code> iterations, and the largest window-level threshold that achieves a cluster-level FDR below <code>target</code> is chosen.
+</p>
+<p>The <code>FUN</code> argument should be a function that accepts a logical vector specifying significance, and returns an integer vector of cluster IDs.
+If, for example, it accepts an input vector <code>ix</code>, then the output should contain cluster IDs corresponding to the entries of <code>which(ix)</code>.
+This is because cluster IDs are only defined for significant tests, given that only those tests are used for clustering.
+</p>
+<p>A consequence of this search strategy is that the returned window-level FDR threshold will always be less than <code>target</code>.
+In other words, each window should be significantly DB on its own merits (i.e., after controlling the window-level FDR) before it is placed into a cluster.
+This protects against scenarios where very large thresholds yield low cluster-level FDRs, due to the formation of a few large clusters.
+</p>
+
+
+<h3>Note about weights</h3>
+
+ 
+<p>In both functions, the <code>weights</code> argument is assumed to contain frequency weights of significant tests/windows.
+For example, a weight of 2 for a test would be equivalent to repeating that test (i.e., repeating the same window so it shows up twice in your analysis).
+These weights should be the same as those used during weighted FDR control to compute adjusted p-values.
+In general, you should not set this argument unless you know what you're doing.
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p>Aaron Lun
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="../../csaw/help/mergeWindows.html">mergeWindows</a></code>,
+<code><a href="../../csaw/help/combineTests.html">combineTests</a></code>,
+<code><a href="../../csaw/help/clusterWindows.html">clusterWindows</a></code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+# Setting up the windows and p-values.
+set.seed(100)
+windows &lt;- GRanges("chrA", IRanges(1:1000, 1:1000))
+test.p &lt;- runif(1000)
+test.p[c(1:10, 100:110, 220:240)] &lt;- 0 # 3 significant subintervals.
+
+# Defining significant windows.
+threshold &lt;- 0.05
+is.sig &lt;- p.adjust(test.p, method="BH") &lt;= threshold
+
+# Assuming that we only cluster significant windows.
+merged &lt;- mergeWindows(windows[is.sig], tol=0)
+clusterFDR(merged$id, threshold)
+
+# Setting up another example with more subintervals.
+test.p &lt;- runif(1000)
+test.p[rep(1:2, 50) + rep(0:49, each=2) * 20] &lt;- 0 
+adj.p &lt;- p.adjust(test.p, method="BH")
+clusterFUN &lt;- function(x) { mergeWindows(windows[x], tol=0)$id }
+controlClusterFDR(0.05, adj.p, clusterFUN)             
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>csaw</em> version 1.26.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

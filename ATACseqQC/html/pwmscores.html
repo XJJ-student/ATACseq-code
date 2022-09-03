@@ -1,0 +1,56 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: max PWM scores for sequences</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for pwmscores {ATACseqQC}"><tr><td>pwmscores {ATACseqQC}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>max PWM scores for sequences</h2>
+
+<h3>Description</h3>
+
+<p>calculate the maximal PWM scores for each given sequences
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+pwmscores(pwm, subject)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>pwm</code></td>
+<td>
+<p>A Position Weight Matrix represented as a numeric matrix
+with row names A, C, G and T.</p>
+</td></tr>
+<tr valign="top"><td><code>subject</code></td>
+<td>
+<p>Typically a <a href="../../Biostrings/help/DNAString-class.html">DNAString</a> object.
+A <a href="../../IRanges/help/Views-class.html">Views</a> object on
+a <a href="../../Biostrings/help/DNAString-class.html">DNAString</a> subject,
+a <a href="../../Biostrings/help/MaskedXString-class.html">MaskedDNAString</a> object,
+or a single character string, are also supported.
+IUPAC ambiguity letters in <code>subject</code> are ignored (i.e.
+assigned weight 0) with a warning.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>a numeric vector
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p>Jianhong
+</p>
+
+<hr /><div style="text-align: center;">[Package <em>ATACseqQC</em> version 1.16.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

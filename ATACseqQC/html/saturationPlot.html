@@ -1,0 +1,131 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Plotting Saturation curves</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for saturationPlot {ATACseqQC}"><tr><td>saturationPlot {ATACseqQC}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Plotting Saturation curves</h2>
+
+<h3>Description</h3>
+
+<p>Plotting the saturation curves.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+saturationPlot(
+  subsamplingPeakFiles,
+  subsamplingSizes,
+  sep = "\t",
+  header = FALSE,
+  fdr = 0.05,
+  fdrCol = 9,
+  startCol = 2,
+  endCol = 3,
+  skipLines = 1,
+  peakCaller = "MACS2",
+  outPrefix,
+  span = 2,
+  degree = 2
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>subsamplingPeakFiles</code></td>
+<td>
+<p>A character vector containing peak files from peak
+calling tools, such as MACS2. Currently only MACS2 output is supported.</p>
+</td></tr>
+<tr valign="top"><td><code>subsamplingSizes</code></td>
+<td>
+<p>A named vector of integers, which are the sizes of 
+subsamples for peak calling. The names of subsamplingPeakFiles should be identical
+to the basenames of subsamplingPeakFiles.</p>
+</td></tr>
+<tr valign="top"><td><code>sep</code></td>
+<td>
+<p>A character vector of length 1L, which is the column separator used 
+in peak files.</p>
+</td></tr>
+<tr valign="top"><td><code>header</code></td>
+<td>
+<p>A boolean (TRUE or FASLE) vector of length 1L, showing whether 
+there are column headers in the peak files.</p>
+</td></tr>
+<tr valign="top"><td><code>fdr</code></td>
+<td>
+<p>A decimal between 0 and 1, a cutoff of statistical significance of 
+peak detection.</p>
+</td></tr>
+<tr valign="top"><td><code>fdrCol</code></td>
+<td>
+<p>An integer, column index for fdr.</p>
+</td></tr>
+<tr valign="top"><td><code>startCol</code></td>
+<td>
+<p>An integer, column index for start positions of peak regions.</p>
+</td></tr>
+<tr valign="top"><td><code>endCol</code></td>
+<td>
+<p>An integer, column index for end positions of peak regions.</p>
+</td></tr>
+<tr valign="top"><td><code>skipLines</code></td>
+<td>
+<p>An integer, the number of lines (comments or instruction) to 
+skip when peak files are read into R.</p>
+</td></tr>
+<tr valign="top"><td><code>peakCaller</code></td>
+<td>
+<p>A character vector of length 1L contatining the name of the 
+peak caller used to generate the peak files, such as &quot;MACS2&quot;. Currently only 
+MACS2 output (XXX.narrowPeak or XXX.broadPeak) is support.</p>
+</td></tr>
+<tr valign="top"><td><code>outPrefix</code></td>
+<td>
+<p>A character vector of length 1L, the file prefix for outputting
+saturation plots.</p>
+</td></tr>
+<tr valign="top"><td><code>span</code></td>
+<td>
+<p>An integer, the span parameter for loess smoothing to fit a smoothed 
+saturation curve.</p>
+</td></tr>
+<tr valign="top"><td><code>degree</code></td>
+<td>
+<p>An integer, the degree of local polynomial used for loess.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>A data frame of three columns:
+subsamplingSizes, the number of subsampled fragments;
+numPeaks, the number of peaks with fdr less than a given threshold when a given
+number of fragmetns are subsampled;
+breadth, the total breadth of peaks with fdr less than a given threshold for 
+give subsampling when a given number of fragmetns are subsampled.
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p>Haibo Liu
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+if(interactive()){
+}
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>ATACseqQC</em> version 1.16.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

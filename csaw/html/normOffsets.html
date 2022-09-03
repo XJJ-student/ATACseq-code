@@ -1,0 +1,124 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Normalize trended biases across libraries</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for normOffsets {csaw}"><tr><td>normOffsets {csaw}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Normalize trended biases across libraries</h2>
+
+<h3>Description</h3>
+
+<p>Calculate normalization offsets by performing a loess fit to count data from multiple libraries.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+normOffsets(object, ..., assay.id = "counts", se.out = TRUE)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>object</code></td>
+<td>
+<p>A <a href="../../SummarizedExperiment/html/SummarizedExperiment-class.html">SummarizedExperiment</a> object containing a count matrix and library sizes in the <code>totals</code> field of the <code><a href="../../GenoGAM/html/GenoGAM-class.html">colData</a></code>.
+</p>
+<p>Alternatively, a <a href="../../DEFormats/html/DGEList.html">DGEList</a> object containing a count matrix in <code>object$counts</code> and library sizes in <code>object$samples$lib.size</code>.
+</p>
+<p>Alternatively, an ordinary matrix containing counts.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Other arguments to be passed to <code><a href="../../limma/html/loessfit.html">loessFit</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>assay.id</code></td>
+<td>
+<p>An integer scalar or string specifying the assay values to use for normalization.</p>
+</td></tr>
+<tr valign="top"><td><code>se.out</code></td>
+<td>
+<p>A logical scalar indicating whether or not a SummarizedExperiment object should be returned.
+</p>
+<p>Alternatively, a SummarizedExperiment or DGEList object in which normalization factors are to be stored.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>This function performs non-linear normalization similar to the fast loess algorithm in <code><a href="../../limma/html/normalizeCyclicLoess.html">normalizeCyclicLoess</a></code>. 
+The aims is to account for mean dependencies in the efficiency biases between libraries.
+For each sample, a lowess curve is fitted to the log-counts against the log-average count. 
+The fitted value for each genomic window is used as an offset in a generalized linear model for that feature and sample. 
+The use of the average count provides more stability than the average log-count when low counts are present for differentially bound regions.
+</p>
+<p>The trend fits are always computed from <code>object</code>.
+However, if <code>se.out</code> is a (different) SummarizedExperiment or DGEList object, 
+the trend fits will be used to compute offsets for each entry in <code>se.out</code> using spline interpolation.
+This is useful when <code>se.out</code> contains counts for windows in an endogenous genome, but the trend fits are computed using spike-in chromatin regions.
+</p>
+<p>An error is raised if the library sizes in <code>se.out$totals</code> are not identical to <code>object$totals</code>.
+This is because the average abundances are only comparable when the library sizes are the same.
+Consistent library sizes can be achieved by using the same <code><a href="../../csaw/help/readParam.html">readParam</a></code> object in <code><a href="../../csaw/help/windowCounts.html">windowCounts</a></code> and related functions.
+</p>
+
+
+<h3>Value</h3>
+
+<p>If <code>se.out=FALSE</code>, a numeric matrix of dimensions equal to <code>object</code>, containing the offset for each observation.
+These offsets have already been scaled to be comparable in magnitude to the log-library sizes.
+</p>
+<p>If <code>se.out=TRUE</code>, the same matrix is stored in the <code>offset</code> assay of <code>object</code> (if it is a SummarizedExperiment)
+or <code>object$offset</code> (if a DGEList) and the modified <code>object</code> is returned.
+</p>
+<p>If <code>se.out</code> is a separate SummarizedExperiment or DGEList object, the offset matrix instead has dimensions equal to <code>se.out</code>.
+This matrix is stored inside <code>se.out</code> and the modified object is returned.
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p>Aaron Lun
+</p>
+
+
+<h3>References</h3>
+
+<p>Ballman KV, Grill DE, Oberg AL, Therneau TM (2004). 
+Faster cyclic loess: normalizing RNA arrays via linear models. 
+<em>Bioinformatics</em> 20, 2778-86.
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="../../limma/html/loessfit.html">loessFit</a></code>, for the fitting algorithm.
+</p>
+<p><code><a href="../../limma/html/normalizeCyclicLoess.html">normalizeCyclicLoess</a></code>, for the original inspiration for this method.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+counts &lt;- matrix(rnbinom(400, mu=10, size=20), ncol=4)
+data &lt;- SummarizedExperiment(list(counts=counts))
+data$totals &lt;- colSums(counts)
+
+# TMM normalization.
+normFactors(data)
+
+# Using loess-based normalization, instead.
+offsets &lt;- normOffsets(data)
+head(offsets)
+offsets &lt;- normOffsets(data, span=0.4)
+offsets &lt;- normOffsets(data, iterations=1)
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>csaw</em> version 1.26.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

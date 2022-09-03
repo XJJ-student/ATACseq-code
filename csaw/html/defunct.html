@@ -1,0 +1,69 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Defunct functions</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for defunct {csaw}"><tr><td>defunct {csaw}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Defunct functions</h2>
+
+<h3>Description</h3>
+
+<p>Functions that have passed on to the function afterlife.
+Their successors are also listed.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+filterWindows(...)
+
+consolidateWindows(...)
+
+consolidateTests(...)
+
+consolidateOverlaps(...)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Ignored arguments.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p><code>filterWindows</code> is succeeded by <code><a href="../../csaw/help/filterWindowsGlobal.html">filterWindowsGlobal</a></code> and related functions, which provide a more focused programmatic interface.
+</p>
+<p><code>consolidateWindows</code> is succeeded by <code><a href="../../csaw/help/mergeWindowsList.html">mergeWindowsList</a></code> and <code><a href="../../csaw/help/findOverlapsList.html">findOverlapsList</a></code>.
+</p>
+<p><code>consolidateTests</code> and <code>consolidateOverlaps</code> are succeeded by <code><a href="../../csaw/help/mergeResultsList.html">mergeResultsList</a></code> and <code><a href="../../csaw/help/overlapResultsList.html">overlapResultsList</a></code>, respectively.
+</p>
+
+
+<h3>Value</h3>
+
+<p>All functions error out with a defunct message pointing towards its descendent (if available).
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p>Aaron Lun
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+try(filterWindows())
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>csaw</em> version 1.26.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

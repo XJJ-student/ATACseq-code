@@ -1,0 +1,173 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Control the empirical FDR</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for empiricalFDR {csaw}"><tr><td>empiricalFDR {csaw}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Control the empirical FDR</h2>
+
+<h3>Description</h3>
+
+<p>Control the empirical FDR across clusters for comparisons to negative controls, 
+based on tests that are significant in the &ldquo;wrong&rdquo; direction.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+empiricalFDR(
+  ids,
+  tab,
+  weights = NULL,
+  pval.col = NULL,
+  fc.col = NULL,
+  fc.threshold = 0.05,
+  neg.down = TRUE
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>ids</code></td>
+<td>
+<p>An integer vector or factor containing the cluster ID for each test.</p>
+</td></tr>
+<tr valign="top"><td><code>tab</code></td>
+<td>
+<p>A data.frame of results with <code>PValue</code> and at least one <code>logFC</code> field for each test.</p>
+</td></tr>
+<tr valign="top"><td><code>weights</code></td>
+<td>
+<p>A numeric vector of weights for each test. 
+Defaults to 1 for all tests.</p>
+</td></tr>
+<tr valign="top"><td><code>pval.col</code></td>
+<td>
+<p>An integer scalar or string specifying the column of <code>tab</code> containing the p-values.
+Defaults to <code>"PValue"</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>fc.col</code></td>
+<td>
+<p>An integer or string specifying the single column of <code>tab</code> containing the log-fold change.</p>
+</td></tr>
+<tr valign="top"><td><code>fc.threshold</code></td>
+<td>
+<p>A numeric scalar specifying the FDR threshold to use <em>within</em> each cluster for counting tests changing in each direction, see <code>?"<a href="../../csaw/help/cluster-direction.html">cluster-direction</a>"</code> for more details.</p>
+</td></tr>
+<tr valign="top"><td><code>neg.down</code></td>
+<td>
+<p>A logical scalar indicating if negative log-fold changes correspond to the &ldquo;wrong&rdquo; direction.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>Some experiments involve comparisons to negative controls where there should be no signal/binding.
+In such case, genuine differences should only occur in one direction, i.e., up in the non-control samples.
+Thus, the number of significant tests that change in the wrong direction can be used as an estimate of the number of false positives.
+</p>
+<p>This function converts two-sided p-values in <code>tab[,pval.col]</code> to one-sided counterparts in the wrong direction.
+It combines the one-sided p-values for each cluster using <code><a href="../../csaw/help/combineTests.html">combineTests</a></code>.
+The number of significant clusters at some p-value threshold represents the estimated number of false positive clusters.
+</p>
+<p>The same approach is applied for one-sided p-values in the right direction, where the number of detected clusters at the threshold represents the total number of discoveries.
+Dividing the number of false positives by the number of discoveries yields the empirical FDR at each p-value threshold.
+Monotonicity is enforced (i.e., the empirical FDR only decreases with decreasing p-value) as is the fact that the empirical FDR must be below unity.
+</p>
+<p>The p-values specified in <code>pval.col</code> are assumed to be originally computed from some two-sided test,
+where the distribution of p-values is the same regardless of the direction of the log-fold change (under both the null and alternative hypothesis).
+This rules out p-values computed from ANODEV where multiple contrasts are tested at once;
+or from methods that yield asymmetric p-value distributions, e.g., GLM-based TREAT.
+</p>
+
+
+<h3>Value</h3>
+
+<p>A <a href="../../S4Vectors/html/DataFrame-class.html">DataFrame</a> with one row per cluster and various fields:
+</p>
+
+<ul>
+<li><p> An integer field <code>num.tests</code>, specifying the total number of tests in each cluster.
+</p>
+</li>
+<li><p> Two integer fields <code>num.up.*</code> and <code>num.down.*</code> for each log-FC column in <code>tab</code>, containing the number of tests with log-FCs significantly greater or less than 0, respectively.
+See <code>?"<a href="../../csaw/help/cluster-direction.html">cluster-direction</a>"</code> for more details.
+</p>
+</li>
+<li><p> A numeric field containing the cluster-level p-value. 
+If <code>pval.col=NULL</code>, this column is named <code>PValue</code>, otherwise its name is set to <code>colnames(tab[,pval.col])</code>.
+</p>
+</li>
+<li><p> A numeric field <code>FDR</code>, containing the empirical FDR corresponding to that cluster's p-value.
+</p>
+</li>
+<li><p> A character field <code>direction</code> (if <code>fc.col</code> is of length 1), specifying the dominant direction of change for tests in each cluster.
+See <code>?"<a href="../../csaw/help/cluster-direction.html">cluster-direction</a>"</code> for more details.
+</p>
+</li>
+<li><p> One integer field <code>rep.test</code> containing the row index (for <code>tab</code>) of a representative test for each cluster.
+See <code>?"<a href="../../csaw/help/cluster-direction.html">cluster-direction</a>"</code> for more details.
+</p>
+</li>
+<li><p> One numeric field <code>rep.*</code> for each log-FC column in <code>tab</code>, containing a representative log-fold change for the differential tests in the cluster.
+See <code>?"<a href="../../csaw/help/cluster-direction.html">cluster-direction</a>"</code> for more details.
+</p>
+</li></ul>
+
+<p>Each row is named according to the ID of the corresponding cluster.
+</p>
+
+
+<h3>Caution</h3>
+
+<p>Control of the empirical FDR is best used for very noisy data sets where the BH method is not adequate.
+The BH method only protects against statistical false positives under the null hypothesis that the log-fold change is zero.
+However, the empirical FDR also protects against experimental false positives, caused by non-specific binding that yields uninteresting (but statistically significant) DB.
+</p>
+<p>The downside is that the empirical FDR calculation relies on the availability of a good estimate of the number of false positives.
+It also assumes that the distribution of p-values is the same for non-specific binding events in both directions 
+(i.e., known events with negative log-FCs and unknown events among those with positive log-FCs).
+Even if the log-fold changes are symmetric around zero, this does not mean that the p-value distributions will be the same,
+due to differences in library size and number between control and ChIP samples.
+</p>
+<p>In summary, the BH method in <code><a href="../../csaw/help/combineTests.html">combineTests</a></code> is more statistically rigorous and should be preferred for routine analyses.
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p>Aaron Lun
+</p>
+
+
+<h3>References</h3>
+
+<p>Zhang Y et al. (2008). 
+Model-based Analysis of ChIP-Seq (MACS). 
+<em>Genome Biol.</em> 9, R137.
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="../../csaw/help/combineTests.html">combineTests</a></code>, used to combine the p-values in each direction.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+ids &lt;- round(runif(100, 1, 10))
+tab &lt;- data.frame(logFC=rnorm(100), logCPM=rnorm(100), PValue=rbeta(100, 1, 2))
+empirical &lt;- empiricalFDR(ids, tab)
+head(empirical)
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>csaw</em> version 1.26.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

@@ -1,0 +1,31 @@
+ATACseqQC-package       ATAC-seq Quality Control
+DB                      helper function for differential binding
+NFRscore                Nucleosome Free Regions (NFR) score
+PTscore                 Promoter/Transcript body (PT) score
+TSSEscore               Transcription Start Site (TSS) Enrichment Score
+bamQC                   Mapping quality control
+distanceDyad            Distance of potential nucleosome dyad
+enrichedFragments       enrichment for nucleosome-free fragments and
+                        nucleosome signals
+estimateLibComplexity   Library complexity estimation
+factorFootprints        plot ATAC-seq footprints infer factor occupancy
+                        genome wide
+footprintsScanner       scan ATAC-seq footprints infer factor occupancy
+                        genome wide
+fragSizeDist            fragment size distribution
+peakdet                 Detect peak positions
+plotCorrelation         plot Correlations of multiple samples
+plotFootprints          Plots a footprint estimated by Centipede
+pwmscores               max PWM scores for sequences
+readBamFile             read in bam files
+readsDupFreq            Calculating duplication frequency
+saturationPlot          Plotting Saturation curves
+shiftGAlignments        shift 5' ends for single end reads
+shiftGAlignmentsList    shift 5' ends
+shiftReads              shift read for 5'end
+splitBam                prepare bam files for downstream analysis
+splitGAlignmentsByCut   split bams into nucleosome free,
+                        mononucleosome, dinucleosome and trinucleosome
+vPlot                   V-plot
+writeListOfGAlignments
+                        export list of GAlignments into bam files

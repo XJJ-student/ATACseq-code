@@ -1,0 +1,162 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: plot ATAC-seq footprints infer factor occupancy genome wide</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for factorFootprints {ATACseqQC}"><tr><td>factorFootprints {ATACseqQC}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>plot ATAC-seq footprints infer factor occupancy genome wide</h2>
+
+<h3>Description</h3>
+
+<p>Aggregate ATAC-seq footprint for a given motif generated
+over binding sites within the genome.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+factorFootprints(
+  bamfiles,
+  index = bamfiles,
+  pfm,
+  genome,
+  min.score = "95%",
+  bindingSites,
+  seqlev = paste0("chr", c(1:22, "X", "Y")),
+  upstream = 100,
+  downstream = 100,
+  maxSiteNum = 1e+06,
+  anchor = "cut site",
+  group = "strand",
+  ...
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>bamfiles</code></td>
+<td>
+<p>A vector of characters indicates the file names of bams.
+All the bamfiles will be pulled together.</p>
+</td></tr>
+<tr valign="top"><td><code>index</code></td>
+<td>
+<p>The names of the index file of the 'BAM' file being processed;
+This is given without the '.bai' extension.</p>
+</td></tr>
+<tr valign="top"><td><code>pfm</code></td>
+<td>
+<p>A Position frequency Matrix represented as a numeric matrix
+with row names A, C, G and T.</p>
+</td></tr>
+<tr valign="top"><td><code>genome</code></td>
+<td>
+<p>An object of <a href="../../BSgenome/help/BSgenome-class.html">BSgenome</a>.</p>
+</td></tr>
+<tr valign="top"><td><code>min.score</code></td>
+<td>
+<p>The minimum score for counting a match.
+Can be given as a character string containing a
+percentage (e.g. &quot;95
+score or as a single number.
+See <a href="../../Biostrings/help/matchPWM.html">matchPWM</a>.</p>
+</td></tr>
+<tr valign="top"><td><code>bindingSites</code></td>
+<td>
+<p>A object of <a href="../../GenomicRanges/help/GRanges-class.html">GRanges</a> indicates
+candidate binding sites (eg. the output of fimo). The GRanges object must have
+score column in the metadata column.</p>
+</td></tr>
+<tr valign="top"><td><code>seqlev</code></td>
+<td>
+<p>A vector of characters indicates the sequence levels.</p>
+</td></tr>
+<tr valign="top"><td><code>upstream, downstream</code></td>
+<td>
+<p>numeric(1) or integer(1).
+Upstream and downstream of the binding region for
+aggregate ATAC-seq footprint.</p>
+</td></tr>
+<tr valign="top"><td><code>maxSiteNum</code></td>
+<td>
+<p>numeric(1). Maximal number of predicted binding sites.
+if predicted binding sites is more than this number, top maxSiteNum binding
+sites will be used.</p>
+</td></tr>
+<tr valign="top"><td><code>anchor</code></td>
+<td>
+<p>&quot;cut site&quot; or &quot;fragment center&quot;. If &quot;fragment center&quot; is used, 
+the input bamfiles must be paired-end.</p>
+</td></tr>
+<tr valign="top"><td><code>group</code></td>
+<td>
+<p>Group information for the bamfiles. Default by strand. Otherwise,
+a factor or vector of characters with same length of bamfiles. The
+group is limited to 2 groups.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>xlab, legTitle, xlim or ylim could be used by <a href="../../ATACseqQC/help/plotFootprints.html">plotFootprints</a></p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>an invisible list of matrixes with the signals for plot.
+It includes:
+- signal    mean values of coverage for positive strand and negative strand
+in feature regions
+- spearman.correlation    spearman correlations of cleavage counts in the 
+highest 10-nucleotide-window and binding prediction score.
+- bindingSites    predicted binding sites.
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p>Jianhong Ou, Julie Zhu
+</p>
+
+
+<h3>References</h3>
+
+<p>Chen, K., Xi, Y., Pan, X., Li, Z., Kaestner, K., Tyler, J.,
+Dent, S., He, X. and Li, W., 2013.
+DANPOS: dynamic analysis of nucleosome position and occupancy by sequencing.
+Genome research, 23(2), pp.341-351.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+
+bamfile &lt;- system.file("extdata", "GL1.bam",
+                       package="ATACseqQC")
+library(MotifDb)
+CTCF &lt;- query(MotifDb, c("CTCF"))
+CTCF &lt;- as.list(CTCF)
+library(BSgenome.Hsapiens.UCSC.hg19)
+factorFootprints(bamfile, pfm=CTCF[[1]],
+                genome=Hsapiens,
+                min.score="95%", seqlev="chr1",
+                upstream=100, downstream=100)
+##### Using user defined binding sites #####
+bds &lt;- readRDS(system.file("extdata", "jolma2013.motifs.bindingList.95.rds",
+                          package="ATACseqQC"))
+bindingSites &lt;- bds[["Hsapiens-jolma2013-CTCF"]]
+seqlev &lt;- "chr1" #seqlevels(bindingSites)
+factorFootprints(bamfile, pfm=CTCF[[1]],
+                bindingSites=bindingSites,
+                seqlev=seqlev,
+                upstream=100, downstream=100)
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>ATACseqQC</em> version 1.16.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

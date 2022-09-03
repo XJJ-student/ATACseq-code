@@ -1,0 +1,109 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Transcription Start Site (TSS) Enrichment Score</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for TSSEscore {ATACseqQC}"><tr><td>TSSEscore {ATACseqQC}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Transcription Start Site (TSS) Enrichment Score</h2>
+
+<h3>Description</h3>
+
+<p>TSS score is a raio between aggregate distribution of reads centered on TSSs and that flanking 
+the corresponding TSSs. TSS score = the depth of TSS (each step within 1000 bp each side) / the depth of end flanks (100bp each end).
+TSSE score = max(mean(TSS score in each window)).
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+TSSEscore(
+  obj,
+  txs,
+  seqlev = intersect(seqlevels(obj), seqlevels(txs)),
+  upstream = 1000,
+  downstream = 1000,
+  endSize = 100,
+  width = 100,
+  step = width,
+  pseudocount = 0
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>obj</code></td>
+<td>
+<p>an object of <a href="../../GenomicAlignments/help/GAlignments-class.html">GAlignments</a></p>
+</td></tr>
+<tr valign="top"><td><code>txs</code></td>
+<td>
+<p>GRanges of transcripts</p>
+</td></tr>
+<tr valign="top"><td><code>seqlev</code></td>
+<td>
+<p>A vector of characters indicates the sequence levels.</p>
+</td></tr>
+<tr valign="top"><td><code>upstream, downstream</code></td>
+<td>
+<p>numeric(1) or integer(1). upstream and downstream of TSS. Default is 1000</p>
+</td></tr>
+<tr valign="top"><td><code>endSize</code></td>
+<td>
+<p>numeric(1) or integer(1). the size of the end flanks. Default is 100</p>
+</td></tr>
+<tr valign="top"><td><code>width</code></td>
+<td>
+<p>numeric(1) or integer(1). the window size for TSS score. Default is 100.</p>
+</td></tr>
+<tr valign="top"><td><code>step</code></td>
+<td>
+<p>numeric(1) or integer(1). The distance between the start position of the sliding windows.</p>
+</td></tr>
+<tr valign="top"><td><code>pseudocount</code></td>
+<td>
+<p>numeric(1) or integer(1). Pseudocount. Default is 0. 
+If pseudocount is no greater than 0, the features with ZERO or less than ZERO 
+counts in flank region will be removed in calculation.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>A object of <a href="../../GenomicRanges/help/GRanges-class.html">GRanges</a> with TSS scores
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p>Jianhong Ou
+</p>
+
+
+<h3>References</h3>
+
+<p>https://www.encodeproject.org/data-standards/terms/#enrichment
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+ 
+library(GenomicRanges)
+bamfile &lt;- system.file("extdata", "GL1.bam", 
+                       package="ATACseqQC", mustWork=TRUE)
+gal1 &lt;- readBamFile(bamFile=bamfile, tag=character(0), 
+                    which=GRanges("chr1", IRanges(1, 1e6)), 
+                    asMates=FALSE)
+library(TxDb.Hsapiens.UCSC.hg19.knownGene)
+txs &lt;- transcripts(TxDb.Hsapiens.UCSC.hg19.knownGene)
+tsse &lt;- TSSEscore(gal1, txs)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>ATACseqQC</em> version 1.16.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

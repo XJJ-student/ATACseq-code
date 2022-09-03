@@ -1,0 +1,132 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Consolidate DB clusters</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for clusterWindowsList {csaw}"><tr><td>clusterWindowsList {csaw}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Consolidate DB clusters</h2>
+
+<h3>Description</h3>
+
+<p>Consolidate DB results from multiple analyses with cluster-level FDR control.</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+clusterWindowsList(ranges.list, tab.list, equiweight=TRUE, ...)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>ranges.list</code></td>
+<td>
+<p>A list of <a href="../../GenomicRanges/html/GRanges-class.html">GRanges</a> or <a href="../../SummarizedExperiment/html/RangedSummarizedExperiment-class.html">RangedSummarizedExperiment</a> objects,
+usually containing windows of varying sizes from separate calls to <code><a href="../../csaw/help/windowCounts.html">windowCounts</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>tab.list</code></td>
+<td>
+<p>A list of data.frames of differential binding results, 
+usually from separate analyses at differing window sizes.
+Each should contain one row per interval for the corresponding entry of <code>ranges.list</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>equiweight</code></td>
+<td>
+<p>a logical scalar indicating whether equal weighting from each analysis should be enforced</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>arguments to be passed to <code><a href="../../csaw/help/clusterWindows.html">clusterWindows</a></code></p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>This function consolidates DB results from multiple analyses, typically involving different window sizes.
+The aim is to provide comprehensive detection of DB at a range of spatial resolutions.
+Significant windows from each analysis are identified and used for clustering with <code><a href="../../csaw/help/clusterWindows.html">clusterWindows</a></code>.
+This represents the post-hoc counterpart to <code><a href="../../csaw/help/mergeResultsList.html">mergeResultsList</a></code>.
+</p>
+<p>Some effort is required to equalize the contribution of the results from each analysis.
+This is done by setting <code>equiweight=TRUE</code>, 
+where the weight of each window is inversely proportional to the number of windows from that analysis.
+These weights are used as frequency weights for window-level FDR control (to identify DB windows prior to clustering).
+Otherwise, the final results would be dominated by large number of small windows.
+</p>
+<p>Users can cluster by the sign of log-fold changes, to obtain clusters of DB windows of the same sign.
+However, note that nested windows with opposite signs may give unintuitive results - see <code><a href="../../csaw/help/mergeWindows.html">mergeWindows</a></code> for details.
+</p>
+
+
+<h3>Value</h3>
+
+<p>A named list is returned containing:
+</p>
+
+<dl>
+<dt><code>ranges</code>:</dt><dd><p>A <a href="../../GenomicRanges/html/GRanges-class.html">GRanges</a> object containing the concatenated intervals from all elements of <code>x</code>.
+The element-wise metadata of this object contains the integer field <code>origin</code>, 
+an integer field specifying the index of <code>x</code> from which each interval was obtained.</p>
+</dd>
+<dt><code>ids</code>:</dt><dd><p>An integer vectors indicating the cluster ID for each window in <code>ranges</code>.
+Non-significant windows that were not assigned to a cluster have IDs of <code>NA</code>, as described in <code>?<a href="../../csaw/help/clusterWindows.html">clusterWindows</a></code>.</p>
+</dd>
+<dt><code>regions</code>:</dt><dd><p>A <a href="../../GenomicRanges/html/GRanges-class.html">GRanges</a> object containing the coordinates for each cluster.</p>
+</dd>
+<dt><code>FDR</code>:</dt><dd><p>A numeric scalar containing the cluster-level FDR estimate.</p>
+</dd>
+</dl>
+
+
+
+<h3>Author(s)</h3>
+
+<p>Aaron Lun
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="../../csaw/help/clusterWindows.html">clusterWindows</a></code>, the equivalent function for a single <a href="../../GenomicRanges/html/GRanges-class.html">GRanges</a> input.
+</p>
+<p><code><a href="../../csaw/help/mergeResultsList.html">mergeResultsList</a></code>, for a more rigorous approach to clustering windows.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+# Making up some GRanges.
+low &lt;- GRanges("chrA", IRanges(runif(100, 1, 1000), width=5))
+med &lt;- GRanges("chrA", IRanges(runif(40, 1, 1000), width=10))
+high &lt;- GRanges("chrA", IRanges(runif(10, 1, 1000), width=20))
+
+# Making up some DB results.
+dbl &lt;- data.frame(logFC=rnorm(length(low)), PValue=rbeta(length(low), 1, 20))
+dbm &lt;- data.frame(logFC=rnorm(length(med)), PValue=rbeta(length(med), 1, 20))
+dbh &lt;- data.frame(logFC=rnorm(length(high)), PValue=rbeta(length(high), 1, 20))
+result.list &lt;- list(dbl, dbm, dbh)
+
+# Consolidating.
+cons &lt;- clusterWindowsList(list(low, med, high), result.list, tol=20)
+cons$region
+cons$id
+cons$FDR
+
+# Without weights.
+cons &lt;- clusterWindowsList(list(low, med, high), result.list, tol=20, 
+    equiweight=FALSE)
+cons$FDR
+
+# Using the signs.
+cons &lt;- clusterWindowsList(list(low, med, high), result.list, tol=20, 
+    fc.col="logFC")
+cons$FDR
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>csaw</em> version 1.26.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

@@ -1,0 +1,145 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: prepare bam files for downstream analysis</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for splitBam {ATACseqQC}"><tr><td>splitBam {ATACseqQC}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>prepare bam files for downstream analysis</h2>
+
+<h3>Description</h3>
+
+<p>shift the bam files by 5'ends and split the bam files.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+splitBam(
+  bamfile,
+  tags,
+  index = bamfile,
+  outPath = NULL,
+  txs,
+  genome,
+  conservation,
+  positive = 4L,
+  negative = 5L,
+  breaks = c(0, 100, 180, 247, 315, 473, 558, 615, Inf),
+  labels = c("NucleosomeFree", "inter1", "mononucleosome", "inter2", "dinucleosome",
+    "inter3", "trinucleosome", "others"),
+  seqlev = paste0("chr", c(1:22, "X", "Y")),
+  cutoff = 0.8,
+  flag = scanBamFlag(isSecondaryAlignment = FALSE, isUnmappedQuery = FALSE,
+    isNotPassingQualityControls = FALSE, isSupplementaryAlignment = FALSE)
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>bamfile</code></td>
+<td>
+<p>character(1). File name of bam.</p>
+</td></tr>
+<tr valign="top"><td><code>tags</code></td>
+<td>
+<p>A vector of characters indicates the tags in bam file.</p>
+</td></tr>
+<tr valign="top"><td><code>index</code></td>
+<td>
+<p>The names of the index file of the 'BAM' file being processed;
+This is given without the '.bai' extension.</p>
+</td></tr>
+<tr valign="top"><td><code>outPath</code></td>
+<td>
+<p>Output file path.</p>
+</td></tr>
+<tr valign="top"><td><code>txs</code></td>
+<td>
+<p><a href="../../GenomicRanges/help/GRanges-class.html">GRanges</a> of transcripts.</p>
+</td></tr>
+<tr valign="top"><td><code>genome</code></td>
+<td>
+<p>An object of <a href="../../BSgenome/help/BSgenome-class.html">BSgenome</a></p>
+</td></tr>
+<tr valign="top"><td><code>conservation</code></td>
+<td>
+<p>An object of <a href="../../GenomicScores/help/GScores-class.html">GScores</a>.</p>
+</td></tr>
+<tr valign="top"><td><code>positive</code></td>
+<td>
+<p>integer(1). the size to be shift for positive strand</p>
+</td></tr>
+<tr valign="top"><td><code>negative</code></td>
+<td>
+<p>integer(1). the size to be shift for negative strand</p>
+</td></tr>
+<tr valign="top"><td><code>breaks</code></td>
+<td>
+<p>A numeric vector for fragment size of nucleosome free,
+mononucleosome, dinucleosome and trinucleosome</p>
+</td></tr>
+<tr valign="top"><td><code>labels</code></td>
+<td>
+<p>A vector of characters indicates the labels for the levels
+of the resulting category.
+The length of labels = length of breaks - 1</p>
+</td></tr>
+<tr valign="top"><td><code>seqlev</code></td>
+<td>
+<p>A vector of characters indicates the sequence levels.</p>
+</td></tr>
+<tr valign="top"><td><code>cutoff</code></td>
+<td>
+<p>numeric(1). Cutoff value for prediction by
+<a href="../../randomForest/help/randomForest.html">randomForest</a>.</p>
+</td></tr>
+<tr valign="top"><td><code>flag</code></td>
+<td>
+<p>An integer(2) vector used to filter reads based on their 
+'flag' entry.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>an invisible list of <a href="../../GenomicAlignments/help/GAlignments-class.html">GAlignments</a>
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p>Jianhong Ou
+</p>
+
+
+<h3>See Also</h3>
+
+<p><a href="../../ATACseqQC/help/shiftGAlignmentsList.html">shiftGAlignmentsList</a>, <a href="../../ATACseqQC/help/splitGAlignmentsByCut.html">splitGAlignmentsByCut</a>, and 
+<a href="../../ATACseqQC/help/writeListOfGAlignments.html">writeListOfGAlignments</a>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+if(Sys.getenv("USER")=="jianhongou"){
+bamfile &lt;- system.file("extdata", "GL1.bam", package="ATACseqQC")
+tags &lt;- c("AS", "XN", "XM", "XO", "XG", "NM", "MD", "YS", "YT")
+library(BSgenome.Hsapiens.UCSC.hg19)
+library(TxDb.Hsapiens.UCSC.hg19.knownGene)
+txs &lt;- transcripts(TxDb.Hsapiens.UCSC.hg19.knownGene)
+library(phastCons100way.UCSC.hg19)
+objs &lt;- splitBam(bamfile, tags,
+                 txs=txs, genome=Hsapiens,
+                 conservation=phastCons100way.UCSC.hg19,
+                 seqlev="chr1")
+}
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>ATACseqQC</em> version 1.16.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

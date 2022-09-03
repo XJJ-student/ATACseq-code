@@ -1,0 +1,96 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Find local maxima</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for findMaxima {csaw}"><tr><td>findMaxima {csaw}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Find local maxima</h2>
+
+<h3>Description</h3>
+
+<p>Find the local maxima for a given set of genomic regions.</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+findMaxima(regions, range, metric, ignore.strand=TRUE)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>regions</code></td>
+<td>
+<p>a <code>GRanges</code> object</p>
+</td></tr>
+<tr valign="top"><td><code>range</code></td>
+<td>
+<p>an integer scalar specifying the range of surrounding regions to consider as local</p>
+</td></tr>
+<tr valign="top"><td><code>metric</code></td>
+<td>
+<p>a numeric vector of values for which the local maxima is found</p>
+</td></tr>
+<tr valign="top"><td><code>ignore.strand</code></td>
+<td>
+<p>a logical scalar indicating whether to consider the strandedness of <code>regions</code></p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>For each region in <code>regions</code>, this function will examine all regions within <code>range</code> on either side.
+It will then determine if the current region has the maximum value of <code>metric</code> across this range.
+A typical metric to maximize might be the sum of counts or the average abundance across all libraries.
+</p>
+<p>Preferably, <code>regions</code> should contain regularly sized and spaced windows or bins, e.g., from <code><a href="../../csaw/help/windowCounts.html">windowCounts</a></code>.
+The sensibility of using this function for arbitrary regions is left to the user.
+In particular, the algorithm will not support nested regions and will fail correspondingly if any are detected.
+</p>
+<p>If <code>ignore.strand=FALSE</code>, the entries in <code>regions</code> are split into their separate strands.
+The function is run separately on the entries for each strand, and the results are collated into a single output.
+This may be useful for strand-specific applications.
+</p>
+
+
+<h3>Value</h3>
+
+<p>A logical vector indicating whether each region in <code>regions</code> is a local maxima.
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p>Aaron Lun
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="../../csaw/help/windowCounts.html">windowCounts</a></code>,
+<code><a href="../../edgeR/html/aveLogCPM.html">aveLogCPM</a></code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+bamFiles &lt;- system.file("exdata", c("rep1.bam", "rep2.bam"), package="csaw")
+data &lt;- windowCounts(bamFiles, filter=1)
+regions &lt;- rowRanges(data)
+metric &lt;- edgeR::aveLogCPM(asDGEList(data))
+findMaxima(regions, range=10, metric=metric)
+findMaxima(regions, range=50, metric=metric)
+findMaxima(regions, range=100, metric=metric)
+
+findMaxima(regions, range=10, metric=runif(length(regions)))
+findMaxima(regions, range=50, metric=runif(length(regions)))
+findMaxima(regions, range=100, metric=runif(length(regions)))
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>csaw</em> version 1.26.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

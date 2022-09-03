@@ -1,0 +1,185 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Get the best test in a cluster</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for getBestTest {csaw}"><tr><td>getBestTest {csaw}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Get the best test in a cluster</h2>
+
+<h3>Description</h3>
+
+<p>Find the test with the greatest significance or the highest abundance in each cluster.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+getBestTest(
+  ids,
+  tab,
+  by.pval = TRUE,
+  weights = NULL,
+  pval.col = NULL,
+  fc.col = NULL,
+  fc.threshold = 0.05,
+  cpm.col = NULL
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>ids</code></td>
+<td>
+<p>An integer vector or factor containing the cluster ID for each test.</p>
+</td></tr>
+<tr valign="top"><td><code>tab</code></td>
+<td>
+<p>A data.frame of results with <code>PValue</code> and at least one <code>logFC</code> field for each test.</p>
+</td></tr>
+<tr valign="top"><td><code>by.pval</code></td>
+<td>
+<p>Logical scalar indicating whether the best test should be selected on the basis of the smallest p-value.
+If <code>FALSE</code>, the best test is defined as that with the highest abundance.</p>
+</td></tr>
+<tr valign="top"><td><code>weights</code></td>
+<td>
+<p>A numeric vector of weights for each test. 
+Defaults to 1 for all tests.</p>
+</td></tr>
+<tr valign="top"><td><code>pval.col</code></td>
+<td>
+<p>An integer scalar or string specifying the column of <code>tab</code> containing the p-values.
+Defaults to <code>"PValue"</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>fc.col</code></td>
+<td>
+<p>An integer or character vector specifying the columns of <code>tab</code> containing the log-fold changes.
+Defaults to all columns in <code>tab</code> starting with <code>"logFC"</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>fc.threshold</code></td>
+<td>
+<p>A numeric scalar specifying the FDR threshold to use <em>within</em> each cluster for counting tests changing in each direction, see <code>?"<a href="../../csaw/help/cluster-direction.html">cluster-direction</a>"</code> for more details.</p>
+</td></tr>
+<tr valign="top"><td><code>cpm.col</code></td>
+<td>
+<p>An integer scalar or string specifying the column of <code>tab</code> containing the log-CPM values.
+Defaults to <code>"logCPM"</code>.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>Each cluster is defined as a set of tests with the same value of <code>ids</code> (any <code>NA</code> values are ignored).
+If <code>by.pval=TRUE</code>, this function identifies the test with the lowest p-value as that with the strongest evidence against the null in each cluster.
+The p-value of the chosen test is adjusted using the (Holm-)Bonferroni correction, based on the total number of tests in the parent cluster. 
+This is necessary to obtain strong control of the family-wise error rate such that the best test can be taken from each cluster for further consideration.
+</p>
+
+<p>The importance of each window in each cluster can be adjusted by supplying different relative <code>weights</code> values. 
+Each weight is interpreted as a different threshold for each test in the cluster using the weighted Holm procedure. 
+Larger weights correspond to lower thresholds, i.e., less evidence is needed to reject the null for tests deemed to be more important. 
+This may be useful for upweighting particular tests such as those for windows containing a motif for the TF of interest.
+</p>
+<p>Note the difference between this function and <code><a href="../../csaw/help/combineTests.html">combineTests</a></code>. 
+The latter presents evidence for any rejections within a cluster. 
+This function specifies the exact location of the rejection in the cluster, which may be more useful in some cases but at the cost of conservativeness. 
+In both cases, clustering procedures such as <code><a href="../../csaw/help/mergeWindows.html">mergeWindows</a></code> can be used to identify the cluster.
+</p>
+
+
+
+<p>If <code>by.pval=FALSE</code>, the best test is defined as that with the highest log-CPM value. 
+This should be independent of the p-value so no adjustment is necessary. Weights are not applied here. 
+This mode may be useful when abundance is correlated to rejection under the alternative hypothesis, e.g., picking high-abundance regions that are more likely to contain peaks.
+</p>
+<p>To obtain <code>ids</code>, a simple clustering approach for genomic windows is implemented in <code><a href="../../csaw/help/mergeWindows.html">mergeWindows</a></code>.
+However, anything can be used so long as it is independent of the p-values and does not compromise type I error control, e.g., promoters, gene bodies, independently called peaks. 
+Any tests with <code>NA</code> values for <code>ids</code> will be ignored.
+</p>
+
+
+<h3>Value</h3>
+
+<p>A <a href="../../S4Vectors/html/DataFrame-class.html">DataFrame</a> with one row per cluster and various fields:
+</p>
+
+<ul>
+<li><p> An integer field <code>num.tests</code>, specifying the total number of tests in each cluster.
+</p>
+</li>
+<li><p> Two integer fields <code>num.up.*</code> and <code>num.down.*</code> for each log-FC column in <code>tab</code>, containing the number of tests with log-FCs significantly greater or less than 0, respectively.
+See <code>?"<a href="../../csaw/help/cluster-direction.html">cluster-direction</a>"</code> for more details.
+</p>
+</li>
+<li><p> A numeric field containing the cluster-level p-value. 
+If <code>pval.col=NULL</code>, this column is named <code>PValue</code>, otherwise its name is set to <code>colnames(tab[,pval.col])</code>.
+</p>
+</li>
+<li><p> A numeric field <code>FDR</code>, containing the BH-adjusted cluster-level p-value.
+</p>
+</li>
+<li><p> A character field <code>direction</code> (if <code>fc.col</code> is of length 1), specifying the dominant direction of change for tests in each cluster.
+See <code>?"<a href="../../csaw/help/cluster-direction.html">cluster-direction</a>"</code> for more details.
+</p>
+</li>
+<li><p> One integer field <code>rep.test</code> containing the row index (for <code>tab</code>) of a representative test for each cluster.
+See <code>?"<a href="../../csaw/help/cluster-direction.html">cluster-direction</a>"</code> for more details.
+</p>
+</li>
+<li><p> One numeric field <code>rep.*</code> for each log-FC column in <code>tab</code>, containing a representative log-fold change for the differential tests in the cluster.
+See <code>?"<a href="../../csaw/help/cluster-direction.html">cluster-direction</a>"</code> for more details.
+</p>
+</li></ul>
+
+<p>Each row is named according to the ID of the corresponding cluster.
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p>Aaron Lun
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="../../csaw/help/combineTests.html">combineTests</a></code> and <code><a href="../../csaw/help/minimalTests.html">minimalTests</a></code>, for other methods for obtaining cluster-level p-values.
+</p>
+<p><code><a href="../../csaw/help/mergeWindows.html">mergeWindows</a></code>, to generate <code>ids</code>.
+</p>
+<p><code><a href="../../edgeR/html/glmQLFTest.html">glmQLFTest</a></code>, for one method of generating <code>tab</code>.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+ids &lt;- round(runif(100, 1, 10))
+tab &lt;- data.frame(logFC=rnorm(100), logCPM=rnorm(100), PValue=rbeta(100, 1, 2))
+best &lt;- getBestTest(ids, tab)
+head(best)
+
+best &lt;- getBestTest(ids, tab, cpm.col="logCPM", pval.col="PValue")
+head(best)
+
+# With window weighting.
+w &lt;- round(runif(100, 1, 5))
+best &lt;- getBestTest(ids, tab, weight=w)
+head(best)
+
+# By logCPM.
+best &lt;- getBestTest(ids, tab, by.pval=FALSE)
+head(best)
+
+best &lt;- getBestTest(ids, tab, by.pval=FALSE, cpm.col=2, pval.col=3)
+head(best)
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>csaw</em> version 1.26.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

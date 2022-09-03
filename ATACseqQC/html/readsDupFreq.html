@@ -1,0 +1,63 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Calculating duplication frequency</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for readsDupFreq {ATACseqQC}"><tr><td>readsDupFreq {ATACseqQC}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Calculating duplication frequency</h2>
+
+<h3>Description</h3>
+
+<p>Calculating the frequency of read duplication based on alignment
+status determined by rname, strand, pos, cigar, mrnm, mpos and isize.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+readsDupFreq(bamFile, index = bamFile)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>bamFile</code></td>
+<td>
+<p>A character vector of length 1L containing the name of a BAM file.
+Only a BAM file with duplication reads are meaningful for estimating the library
+complexity. For example, a raw BAM file output by aligners, or a BAM file with 
+mitochondrial reads removed.</p>
+</td></tr>
+<tr valign="top"><td><code>index</code></td>
+<td>
+<p>A character vector of length 1L containing the name of a BAM index file.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>A two-column matrix of integers. The 1st column is the frequency 
+j = 1,2,3,.... The 2nd column is the number of genomic regions with the same 
+fequency (j) of duplication. The frequency column is in ascending order.
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p>Haibo Liu
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+bamFile &lt;- system.file("extdata", "GL1.bam", package = "ATACseqQC")
+freq &lt;- readsDupFreq(bamFile)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>ATACseqQC</em> version 1.16.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

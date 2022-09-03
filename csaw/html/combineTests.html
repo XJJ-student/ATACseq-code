@@ -1,0 +1,191 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Combine statistics across multiple tests</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for combineTests {csaw}"><tr><td>combineTests {csaw}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Combine statistics across multiple tests</h2>
+
+<h3>Description</h3>
+
+<p>Combines p-values across clustered tests using Simes' method to control the cluster-level FDR.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+combineTests(
+  ids,
+  tab,
+  weights = NULL,
+  pval.col = NULL,
+  fc.col = NULL,
+  fc.threshold = 0.05
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>ids</code></td>
+<td>
+<p>An integer vector or factor containing the cluster ID for each test.</p>
+</td></tr>
+<tr valign="top"><td><code>tab</code></td>
+<td>
+<p>A data.frame of results with <code>PValue</code> and at least one <code>logFC</code> field for each test.</p>
+</td></tr>
+<tr valign="top"><td><code>weights</code></td>
+<td>
+<p>A numeric vector of weights for each test. 
+Defaults to 1 for all tests.</p>
+</td></tr>
+<tr valign="top"><td><code>pval.col</code></td>
+<td>
+<p>An integer scalar or string specifying the column of <code>tab</code> containing the p-values.
+Defaults to <code>"PValue"</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>fc.col</code></td>
+<td>
+<p>An integer or character vector specifying the columns of <code>tab</code> containing the log-fold changes.
+Defaults to all columns in <code>tab</code> starting with <code>"logFC"</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>fc.threshold</code></td>
+<td>
+<p>A numeric scalar specifying the FDR threshold to use <em>within</em> each cluster for counting tests changing in each direction, see <code>?"<a href="../../csaw/help/cluster-direction.html">cluster-direction</a>"</code> for more details.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>All tests with the same value of <code>ids</code> are used to define a single cluster.
+This function applies Simes' procedure to the per-test p-values to compute the combined p-value for each cluster,
+which represents evidence against the global null hypothesis, i.e., all individual nulls are true in each cluster. 
+The BH method is then applied to control the FDR across all clusters.
+</p>
+<p>Rejection of the global null is more relevant than the significance of each individual test when multiple tests in a cluster represent parts of the same underlying event, e.g., differentially bound genomic regions consisting of clusters of windows.
+Control of the FDR across tests may not equate to control of the FDR across clusters;
+we ensure the latter by explicitly computing cluster-level p-values for use in the BH method.
+</p>
+<p>We use Simes' method as it is relatively relaxed and rejects the global null upon observing any change in the cluster.
+More stringent methods are available in functions like <code><a href="../../csaw/help/minimalTests.html">minimalTests</a></code> and <code><a href="../../csaw/help/getBestTest.html">getBestTest</a></code>.
+</p>
+<p>The importance of each test within a cluster can be adjusted by supplying different relative <code>weights</code> values. 
+This may be useful for downweighting low-confidence tests, e.g., those in repeat regions. 
+In Simes' procedure, weights are interpreted as relative frequencies of the tests in each cluster. 
+Note that these weights have no effect between clusters.
+</p>
+<p>To obtain <code>ids</code>, a simple clustering approach for genomic windows is implemented in <code><a href="../../csaw/help/mergeWindows.html">mergeWindows</a></code>.
+However, anything can be used so long as it is independent of the p-values and does not compromise type I error control, e.g., promoters, gene bodies, independently called peaks. 
+Any tests with <code>NA</code> values for <code>ids</code> will be ignored.
+</p>
+
+
+<h3>Value</h3>
+
+<p>A <a href="../../S4Vectors/html/DataFrame-class.html">DataFrame</a> with one row per cluster and various fields:
+</p>
+
+<ul>
+<li><p> An integer field <code>num.tests</code>, specifying the total number of tests in each cluster.
+</p>
+</li>
+<li><p> Two integer fields <code>num.up.*</code> and <code>num.down.*</code> for each log-FC column in <code>tab</code>, containing the number of tests with log-FCs significantly greater or less than 0, respectively.
+See <code>?"<a href="../../csaw/help/cluster-direction.html">cluster-direction</a>"</code> for more details.
+</p>
+</li>
+<li><p> A numeric field containing the cluster-level p-value. 
+If <code>pval.col=NULL</code>, this column is named <code>PValue</code>, otherwise its name is set to <code>colnames(tab[,pval.col])</code>.
+</p>
+</li>
+<li><p> A numeric field <code>FDR</code>, containing the BH-adjusted cluster-level p-value.
+</p>
+</li>
+<li><p> A character field <code>direction</code> (if <code>fc.col</code> is of length 1), specifying the dominant direction of change for tests in each cluster.
+See <code>?"<a href="../../csaw/help/cluster-direction.html">cluster-direction</a>"</code> for more details.
+</p>
+</li>
+<li><p> One integer field <code>rep.test</code> containing the row index (for <code>tab</code>) of a representative test for each cluster.
+See <code>?"<a href="../../csaw/help/cluster-direction.html">cluster-direction</a>"</code> for more details.
+</p>
+</li>
+<li><p> One numeric field <code>rep.*</code> for each log-FC column in <code>tab</code>, containing a representative log-fold change for the differential tests in the cluster.
+See <code>?"<a href="../../csaw/help/cluster-direction.html">cluster-direction</a>"</code> for more details.
+</p>
+</li></ul>
+
+<p>Each row is named according to the ID of the corresponding cluster.
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p>Aaron Lun
+</p>
+
+
+<h3>References</h3>
+
+<p>Simes RJ (1986). 
+An improved Bonferroni procedure for multiple tests of significance. 
+<em>Biometrika</em> 73, 751-754.
+</p>
+<p>Benjamini Y and Hochberg Y (1995). 
+Controlling the false discovery rate: a practical and powerful approach to multiple testing. 
+<em>J. R. Stat. Soc. Series B</em> 57, 289-300. 
+</p>
+<p>Benjamini Y and Hochberg Y (1997). 
+Multiple hypotheses testing with weights. 
+<em>Scand. J. Stat.</em> 24, 407-418.
+</p>
+<p>Lun ATL and Smyth GK (2014). 
+De novo detection of differentially bound regions for ChIP-seq data using peaks and windows: controlling error rates correctly. 
+<em>Nucleic Acids Res.</em> 42, e95
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="../../metapod/html/groupedSimes.html">groupedSimes</a></code>, which does the heavy lifting.
+</p>
+<p><code><a href="../../csaw/help/minimalTests.html">minimalTests</a></code> and <code><a href="../../csaw/help/getBestTest.html">getBestTest</a></code>, for another method of combining p-values for each cluster.
+</p>
+<p><code><a href="../../csaw/help/mergeWindows.html">mergeWindows</a></code>, for one method of generating <code>ids</code>.
+</p>
+<p><code><a href="../../edgeR/html/glmQLFTest.html">glmQLFTest</a></code>, for one method of generating <code>tab</code>.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+ids &lt;- round(runif(100, 1, 10))
+tab &lt;- data.frame(logFC=rnorm(100), logCPM=rnorm(100), PValue=rbeta(100, 1, 2))
+combined &lt;- combineTests(ids, tab)
+head(combined)
+
+# With window weighting.
+w &lt;- round(runif(100, 1, 5))
+combined &lt;- combineTests(ids, tab, weights=w)
+head(combined)
+
+# With multiple log-FCs.
+tab$logFC.whee &lt;- rnorm(100, 5)
+combined &lt;- combineTests(ids, tab)
+head(combined)
+
+# Manual specification of column IDs.
+combined &lt;- combineTests(ids, tab, fc.col=c(1,4), pval.col=3)
+head(combined)
+
+combined &lt;- combineTests(ids, tab, fc.col="logFC.whee", pval.col="PValue")
+head(combined)
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>csaw</em> version 1.26.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

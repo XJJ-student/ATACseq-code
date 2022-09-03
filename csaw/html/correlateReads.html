@@ -1,0 +1,130 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Compute correlation coefficients between reads</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for correlateReads {csaw}"><tr><td>correlateReads {csaw}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Compute correlation coefficients between reads</h2>
+
+<h3>Description</h3>
+
+<p>Computes the auto- or cross-correlation coefficients between read positions across a set of delay intervals.</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+correlateReads(bam.files, max.dist=1000, cross=TRUE, param=readParam(),
+    BPPARAM=SerialParam())
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>bam.files</code></td>
+<td>
+<p>A character vector containing paths to sorted and indexed BAM files.
+Alternatively, a list of <a href="../../Rsamtools/html/BamFile-class.html">BamFile</a> objects.</p>
+</td></tr>
+<tr valign="top"><td><code>max.dist</code></td>
+<td>
+<p>An integer scalar specifying the maximum delay distance over which correlation coefficients will be calculated.</p>
+</td></tr>
+<tr valign="top"><td><code>cross</code></td>
+<td>
+<p>A logical scalar specifying whether cross-correlations should be computed.</p>
+</td></tr>
+<tr valign="top"><td><code>param</code></td>
+<td>
+<p>A <a href="../../csaw/help/readParam-class.html">readParam</a> object containing read extraction parameters.</p>
+</td></tr>
+<tr valign="top"><td><code>BPPARAM</code></td>
+<td>
+<p>A <a href="../../BiocParallel/html/BiocParallelParam-class.html">BiocParallelParam</a> specifying how parallelization is to be performed across files.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>If <code>cross=TRUE</code>, reads are separated into those mapping on the forward and reverse strands. 
+Positions on the forward strand are shifted forward by a delay interval. 
+The chromosome-wide correlation coefficient between the shifted forward positions and the original reverse positions are computed. 
+This is repeated for all delay intervals less than <code>max.dist</code>. 
+A weighted mean for the cross-correlation is taken across all chromosomes, with weighting based on the number of reads. 
+</p>
+<p>Cross-correlation plots can be used to check the quality of immunoprecipitation for ChIP-Seq experiments involving transcription factors or punctate histone marks. 
+Strong immunoprecipitation should result in a peak at a delay corresponding to the fragment length. 
+A spike may also be observed at the delay corresponding to the read length. 
+This is probably an artefact of the mapping process where unique mapping occurs to the same sequence on each strand. 
+</p>
+<p>By default, marked duplicate reads are removed from each BAM file prior to calculation of coefficients.
+This is strongly recommended, even if the rest of the analysis will be performed with duplicates retained.
+Otherwise, the read length spike will dominate the plot, such that the fragment length peak will no longer be easily visible.
+</p>
+<p>If <code>cross=FALSE</code>, auto-correlation coefficients are computed without use of strand information. 
+This is designed to guide estimation of the average width of enrichment for diffuse histone marks. 
+For example, the width can be defined as the delay distance at which the autocorrelations become negligble.
+However, this tends to be ineffective in practice as diffuse marks tend to have very weak correlations to begin with.
+</p>
+<p>If multiple BAM files are specified in <code>bam.files</code>, the reads from all libraries are pooled prior to calculation of the correlation coefficients.
+This is convenient for determining the average correlation profile across an entire dataset. 
+Separate calculations for each file will require multiple calls to <code>correlateReads</code>.
+</p>
+<p>Paired-end data is also supported, whereby correlations are computed using only those reads in proper pairs.
+This may be less meaningful as the presence of proper pairs will inevitably result in a strong peak at the fragment length.
+Instead, IP efficiency can be diagnosed by treating paired-end data as single-end, e.g., with <code>pe="first"</code> in <code><a href="../../csaw/help/readParam.html">readParam</a></code>.
+</p>
+
+
+<h3>Value</h3>
+
+<p>A numeric vector of length <code>max.dist+1</code> containing the correlation coefficients for each delay interval from 0 to <code>max.dist</code>.
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p>Aaron Lun</p>
+
+
+<h3>References</h3>
+
+<p>Kharchenko PV, Tolstorukov MY  and Park, PJ (2008). Design and analysis of
+ChIP-seq experiments for DNA-binding proteins. <em>Nat. Biotechnol.</em> 26,
+1351-1359.
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="../../stats/html/acf.html">ccf</a></code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+n &lt;- 20
+bamFile &lt;- system.file("exdata", "rep1.bam", package="csaw")
+par(mfrow=c(2,2))
+
+x &lt;- correlateReads(bamFile, max.dist=n)
+plot(0:n, x, xlab="delay (bp)", ylab="ccf")
+
+x &lt;- correlateReads(bamFile, max.dist=n, param=readParam(dedup=TRUE))
+plot(0:n, x, xlab="delay (bp)", ylab="ccf")
+
+x &lt;- correlateReads(bamFile, max.dist=n, cross=FALSE)
+plot(0:n, x, xlab="delay (bp)", ylab="acf")
+
+# Also works on paired-end data.
+bamFile &lt;- system.file("exdata", "pet.bam", package="csaw")
+x &lt;- correlateReads(bamFile, param=readParam(pe="both"))
+head(x)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>csaw</em> version 1.26.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

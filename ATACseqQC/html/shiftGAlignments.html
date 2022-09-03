@@ -1,0 +1,78 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: shift 5' ends for single end reads</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for shiftGAlignments {ATACseqQC}"><tr><td>shiftGAlignments {ATACseqQC}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>shift 5' ends for single end reads</h2>
+
+<h3>Description</h3>
+
+<p>shift the GAlignmentsLists by 5' ends. 
+All reads aligning to the positive strand will be offset by +4bp, 
+and all reads aligning to the negative strand will be offset -5bp by default.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+shiftGAlignments(gal, positive = 4L, negative = 5L, outbam)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>gal</code></td>
+<td>
+<p>An object of 
+<a href="../../GenomicAlignments/help/GAlignments-class.html">GAlignments</a>.</p>
+</td></tr>
+<tr valign="top"><td><code>positive</code></td>
+<td>
+<p>integer(1). the size to be shift for positive strand</p>
+</td></tr>
+<tr valign="top"><td><code>negative</code></td>
+<td>
+<p>integer(1). the size to be shift for negative strand</p>
+</td></tr>
+<tr valign="top"><td><code>outbam</code></td>
+<td>
+<p>file path to save shift reads. 
+If missing, no file will be write.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>An object of 
+<a href="../../GenomicAlignments/help/GAlignments-class.html">GAlignments</a> with 5' end 
+shifted reads.
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p>Jianhong Ou
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+bamfile &lt;- system.file("extdata", "GL1.bam", package="ATACseqQC")
+tags &lt;- c("AS", "XN", "XM", "XO", "XG", "NM", "MD", "YS", "YT")
+library(BSgenome.Hsapiens.UCSC.hg19)
+which &lt;- as(seqinfo(Hsapiens)["chr1"], "GRanges")
+gal &lt;- readBamFile(bamfile, tag=tags, 
+                   what=c("qname", "flag", "mapq", "seq", "qual"),
+                   which=which, asMates=FALSE, bigFile=TRUE)
+objs &lt;- shiftGAlignments(gal)
+export(objs, "shift.bam")
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>ATACseqQC</em> version 1.16.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

@@ -1,0 +1,150 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head><title>R: ChIP-Seq Analysis with Windows</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+<h1> ChIP-Seq Analysis with Windows
+<img class="toplogo" src="../../../doc/html/Rlogo.svg" alt="[R logo]" />
+</h1>
+<hr/>
+<div style="text-align: center;">
+<a href="../../../doc/html/packages.html"><img class="arrow" src="../../../doc/html/left.jpg" alt="[Up]" /></a>
+<a href="../../../doc/html/index.html"><img class="arrow" src="../../../doc/html/up.jpg" alt="[Top]" /></a>
+</div><h2>Documentation for package &lsquo;csaw&rsquo; version 1.26.0</h2>
+
+<ul><li><a href="../DESCRIPTION">DESCRIPTION file</a>.</li>
+<li><a href="../doc/index.html">User guides, package vignettes and other documentation.</a></li>
+<li><a href="../NEWS">Package NEWS</a>.</li>
+</ul>
+
+<h2>Help Pages</h2>
+
+
+<table width="100%">
+<tr><td style="width: 25%;"><a href="readParam.html">$-method</a></td>
+<td>readParam class and methods</td></tr>
+<tr><td style="width: 25%;"><a href="SEmethods.html">asDGEList</a></td>
+<td>SummarizedExperiment to DGEList</td></tr>
+<tr><td style="width: 25%;"><a href="SEmethods.html">asDGEList-method</a></td>
+<td>SummarizedExperiment to DGEList</td></tr>
+<tr><td style="width: 25%;"><a href="calculateCPM.html">calculateCPM</a></td>
+<td>Calculate CPM</td></tr>
+<tr><td style="width: 25%;"><a href="checkBimodality.html">checkBimodality</a></td>
+<td>Check bimodality of regions</td></tr>
+<tr><td style="width: 25%;"><a href="cluster-direction.html">cluster-direction</a></td>
+<td>Reporting cluster-level direction in 'csaw'</td></tr>
+<tr><td style="width: 25%;"><a href="clusterFDR.html">clusterFDR</a></td>
+<td>Compute the cluster-level FDR</td></tr>
+<tr><td style="width: 25%;"><a href="clusterWindows.html">clusterWindows</a></td>
+<td>Cluster DB windows into clusters</td></tr>
+<tr><td style="width: 25%;"><a href="clusterWindowsList.html">clusterWindowsList</a></td>
+<td>Consolidate DB clusters</td></tr>
+<tr><td style="width: 25%;"><a href="overlapStats.html">combineOverlaps</a></td>
+<td>Combine statistics for overlap-based clusters</td></tr>
+<tr><td style="width: 25%;"><a href="combineTests.html">combineTests</a></td>
+<td>Combine statistics across multiple tests</td></tr>
+<tr><td style="width: 25%;"><a href="defunct.html">consolidateOverlaps</a></td>
+<td>Defunct functions</td></tr>
+<tr><td style="width: 25%;"><a href="defunct.html">consolidateTests</a></td>
+<td>Defunct functions</td></tr>
+<tr><td style="width: 25%;"><a href="defunct.html">consolidateWindows</a></td>
+<td>Defunct functions</td></tr>
+<tr><td style="width: 25%;"><a href="clusterFDR.html">controlClusterFDR</a></td>
+<td>Compute the cluster-level FDR</td></tr>
+<tr><td style="width: 25%;"><a href="correlateReads.html">correlateReads</a></td>
+<td>Compute correlation coefficients between reads</td></tr>
+<tr><td style="width: 25%;"><a href="csawUsersGuide.html">csaw</a></td>
+<td>View csaw user's guide</td></tr>
+<tr><td style="width: 25%;"><a href="csawUsersGuide.html">csawUsersGuide</a></td>
+<td>View csaw user's guide</td></tr>
+<tr><td style="width: 25%;"><a href="defunct.html">defunct</a></td>
+<td>Defunct functions</td></tr>
+<tr><td style="width: 25%;"><a href="detailRanges.html">detailRanges</a></td>
+<td>Add annotation to ranges</td></tr>
+<tr><td style="width: 25%;"><a href="empiricalFDR.html">empiricalFDR</a></td>
+<td>Control the empirical FDR</td></tr>
+<tr><td style="width: 25%;"><a href="overlapStats.html">empiricalOverlaps</a></td>
+<td>Combine statistics for overlap-based clusters</td></tr>
+<tr><td style="width: 25%;"><a href="extractReads.html">extractReads</a></td>
+<td>Extract reads from a BAM file</td></tr>
+<tr><td style="width: 25%;"><a href="defunct.html">filterWindows</a></td>
+<td>Defunct functions</td></tr>
+<tr><td style="width: 25%;"><a href="filterWindows.html">filterWindowsControl</a></td>
+<td>Filtering methods for RangedSummarizedExperiment objects</td></tr>
+<tr><td style="width: 25%;"><a href="filterWindows.html">filterWindowsGlobal</a></td>
+<td>Filtering methods for RangedSummarizedExperiment objects</td></tr>
+<tr><td style="width: 25%;"><a href="filterWindows.html">filterWindowsLocal</a></td>
+<td>Filtering methods for RangedSummarizedExperiment objects</td></tr>
+<tr><td style="width: 25%;"><a href="filterWindows.html">filterWindowsProportion</a></td>
+<td>Filtering methods for RangedSummarizedExperiment objects</td></tr>
+<tr><td style="width: 25%;"><a href="findMaxima.html">findMaxima</a></td>
+<td>Find local maxima</td></tr>
+<tr><td style="width: 25%;"><a href="mergeWindowsList.html">findOverlapsList</a></td>
+<td>Consolidate window sizes</td></tr>
+<tr><td style="width: 25%;"><a href="overlapStats.html">getBestOverlaps</a></td>
+<td>Combine statistics for overlap-based clusters</td></tr>
+<tr><td style="width: 25%;"><a href="getBestTest.html">getBestTest</a></td>
+<td>Get the best test in a cluster</td></tr>
+<tr><td style="width: 25%;"><a href="getPESizes.html">getPESizes</a></td>
+<td>Compute fragment lengths for paired-end tags</td></tr>
+<tr><td style="width: 25%;"><a href="getWidths.html">getWidths</a></td>
+<td>Get region widths</td></tr>
+<tr><td style="width: 25%;"><a href="maximizeCcf.html">maximizeCcf</a></td>
+<td>Find the delay at the maximal CCF</td></tr>
+<tr><td style="width: 25%;"><a href="mergeResults.html">mergeResults</a></td>
+<td>Wrappers to get region-level results</td></tr>
+<tr><td style="width: 25%;"><a href="mergeResultsList.html">mergeResultsList</a></td>
+<td>Wrappers to combine multiple analyses</td></tr>
+<tr><td style="width: 25%;"><a href="mergeWindows.html">mergeWindows</a></td>
+<td>Merge windows into clusters</td></tr>
+<tr><td style="width: 25%;"><a href="mergeWindowsList.html">mergeWindowsList</a></td>
+<td>Consolidate window sizes</td></tr>
+<tr><td style="width: 25%;"><a href="minimalTests.html">minimalTests</a></td>
+<td>Require rejection of a minimal number of tests</td></tr>
+<tr><td style="width: 25%;"><a href="mixedTests.html">mixedClusters</a></td>
+<td>Tests for mixed DB clusters</td></tr>
+<tr><td style="width: 25%;"><a href="overlapStats.html">mixedOverlaps</a></td>
+<td>Combine statistics for overlap-based clusters</td></tr>
+<tr><td style="width: 25%;"><a href="mixedTests.html">mixedTests</a></td>
+<td>Tests for mixed DB clusters</td></tr>
+<tr><td style="width: 25%;"><a href="normFactors.html">normFactors</a></td>
+<td>Scaling normalization across libraries</td></tr>
+<tr><td style="width: 25%;"><a href="normOffsets.html">normOffsets</a></td>
+<td>Normalize trended biases across libraries</td></tr>
+<tr><td style="width: 25%;"><a href="mergeResults.html">overlapResults</a></td>
+<td>Wrappers to get region-level results</td></tr>
+<tr><td style="width: 25%;"><a href="mergeResultsList.html">overlapResultsList</a></td>
+<td>Wrappers to combine multiple analyses</td></tr>
+<tr><td style="width: 25%;"><a href="overlapStats.html">overlapStats</a></td>
+<td>Combine statistics for overlap-based clusters</td></tr>
+<tr><td style="width: 25%;"><a href="profileSites.html">profileSites</a></td>
+<td>Profile binding sites</td></tr>
+<tr><td style="width: 25%;"><a href="readParam.html">readParam</a></td>
+<td>readParam class and methods</td></tr>
+<tr><td style="width: 25%;"><a href="readParam.html">readParam-class</a></td>
+<td>readParam class and methods</td></tr>
+<tr><td style="width: 25%;"><a href="readParam.html">reform</a></td>
+<td>readParam class and methods</td></tr>
+<tr><td style="width: 25%;"><a href="readParam.html">reform-method</a></td>
+<td>readParam class and methods</td></tr>
+<tr><td style="width: 25%;"><a href="regionCounts.html">regionCounts</a></td>
+<td>Count reads overlapping each region</td></tr>
+<tr><td style="width: 25%;"><a href="filterWindows.html">scaleControlFilter</a></td>
+<td>Filtering methods for RangedSummarizedExperiment objects</td></tr>
+<tr><td style="width: 25%;"><a href="scaledAverage.html">scaledAverage</a></td>
+<td>Scaled average abundance</td></tr>
+<tr><td style="width: 25%;"><a href="readParam.html">show-method</a></td>
+<td>readParam class and methods</td></tr>
+<tr><td style="width: 25%;"><a href="strandedCounts.html">strandedCounts</a></td>
+<td>Get strand-specific counts</td></tr>
+<tr><td style="width: 25%;"><a href="overlapStats.html">summitOverlaps</a></td>
+<td>Combine statistics for overlap-based clusters</td></tr>
+<tr><td style="width: 25%;"><a href="upweightSummit.html">upweightSummit</a></td>
+<td>Upweight summits</td></tr>
+<tr><td style="width: 25%;"><a href="windowCounts.html">windowCounts</a></td>
+<td>Count reads overlapping each window</td></tr>
+<tr><td style="width: 25%;"><a href="wwhm.html">wwhm</a></td>
+<td>Window width at half maximum</td></tr>
+</table>
+</body></html>

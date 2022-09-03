@@ -1,0 +1,87 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Find the delay at the maximal CCF</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for maximizeCcf {csaw}"><tr><td>maximizeCcf {csaw}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Find the delay at the maximal CCF</h2>
+
+<h3>Description</h3>
+
+<p>Estimate the average fragment length by maximizing the cross-correlations.</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+maximizeCcf(profile, ignore=100)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>profile</code></td>
+<td>
+<p>a numeric vector containing a coverage profile, as produced by <code><a href="../../csaw/help/correlateReads.html">correlateReads</a></code></p>
+</td></tr>
+<tr valign="top"><td><code>ignore</code></td>
+<td>
+<p>an integer scalar specifying the distances to ignore</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>This function identifies the delay distance at which the cross-correlations are maximized.
+This distance can then be used as an estimate of the average fragment length, for use in directional extension during read counting. 
+</p>
+<p>In some datasets, identification of the maxima is confounded by a phantom peak at the read length.
+This can be overcome by ignoring the first <code>ignore</code> delay distances, such that the distance corresponding to the true peak is used.
+</p>
+<p>Obviously, this only works in TF experiments with moderate to strong enrichment, where a strong peak in the CCF profile is present. 
+The function may not perform sensibly in the presence of noisy profiles containing multiple local maxima.
+</p>
+
+
+<h3>Value</h3>
+
+<p>The average fragment length is returned as an integer scalar.
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p>Aaron Lun
+</p>
+
+
+<h3>References</h3>
+
+<p>Landt SG, Marinov GK, Kundaje A, et al. (2012).
+ChIP-seq guidelines and practices of the ENCODE and modENCODE consortia.
+<em>Genome Res.</em> 22, 1813-31.
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="../../csaw/help/correlateReads.html">correlateReads</a></code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+x &lt;- dnorm(-200:200/100) # Mocking up a profile.
+maximizeCcf(x)
+
+x2 &lt;- x + dnorm(-50:250/10) # Adding a phantom peak
+maximizeCcf(x2)
+maximizeCcf(x2, ignore=0)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>csaw</em> version 1.26.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

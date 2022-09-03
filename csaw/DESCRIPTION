@@ -1,0 +1,36 @@
+Package: csaw
+Version: 1.26.0
+Date: 2020-12-10
+Title: ChIP-Seq Analysis with Windows
+Authors@R: 
+    c(person("Aaron", "Lun", role=c("aut", "cre"), email = "infinite.monkeys.with.keyboards@gmail.com"),
+    person("Gordon", "Smyth", role="aut"))
+Depends: GenomicRanges, SummarizedExperiment
+Imports: Rcpp, Matrix, BiocGenerics, Rsamtools, edgeR, limma, methods,
+        S4Vectors, IRanges, GenomeInfoDb, stats, BiocParallel, metapod,
+        utils
+Suggests: AnnotationDbi, org.Mm.eg.db,
+        TxDb.Mmusculus.UCSC.mm10.knownGene, testthat, GenomicFeatures,
+        GenomicAlignments, knitr, BiocStyle, rmarkdown, BiocManager
+LinkingTo: Rhtslib, zlibbioc, Rcpp
+biocViews: MultipleComparison, ChIPSeq, Normalization, Sequencing,
+        Coverage, Genetics, Annotation, DifferentialPeakCalling
+Description: 
+    Detection of differentially bound regions in ChIP-seq data with sliding windows,
+    with methods for normalization and proper FDR control.
+License: GPL-3
+NeedsCompilation: yes
+SystemRequirements: C++11, GNU make
+VignetteBuilder: knitr
+RoxygenNote: 7.1.1
+git_url: https://git.bioconductor.org/packages/csaw
+git_branch: RELEASE_3_13
+git_last_commit: d3850f3
+git_last_commit_date: 2021-05-19
+Date/Publication: 2021-05-19
+Packaged: 2021-05-19 23:37:42 UTC; biocbuild
+Author: Aaron Lun [aut, cre],
+  Gordon Smyth [aut]
+Maintainer: Aaron Lun <infinite.monkeys.with.keyboards@gmail.com>
+Built: R 4.1.0; i386-w64-mingw32; 2021-05-20 07:43:24 UTC; windows
+Archs: i386, x64

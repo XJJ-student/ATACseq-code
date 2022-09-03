@@ -1,0 +1,96 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Upweight summits</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for upweightSummit {csaw}"><tr><td>upweightSummit {csaw}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Upweight summits</h2>
+
+<h3>Description</h3>
+
+<p>Upweight the highest-abudance window(s) in a cluster.</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+upweightSummit(ids, summits)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>ids</code></td>
+<td>
+<p>an integer vector or factor of cluster IDs</p>
+</td></tr>
+<tr valign="top"><td><code>summits</code></td>
+<td>
+<p>a logical vector indicating whether each window is a summit, or an integer vector containing the indices of summit windows</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>This function computes weights for each window in a cluster, where the highest-abundance windows are upweighted.
+These weights are intended for use in <code><a href="../../csaw/help/combineTests.html">combineTests</a></code>, such that the summits of a cluster have a greater influence on the combined p-value.
+This is more graduated than simply using the summits alone, as potential DB between summits can still be detected.
+Summits can be obtained through <code><a href="../../csaw/help/findMaxima.html">findMaxima</a></code> or by running <code><a href="../../csaw/help/getBestTest.html">getBestTest</a></code> with <code>by.pval=FALSE</code>.
+</p>
+<p>The exact value of the weight is arbitrary.
+Greater weight represents a stronger belief that DB occurs at the most abundant window.
+Here, the weighting scheme is designed such that the maximum Simes correction is not more than twice that without weighting.
+It will also be no more than twice that from applying Simes' method on the summits alone.
+This (restrained) conservativeness is an acceptable cost for considering DB events elsewhere in the cluster, while still focusing on the most abundant site.
+</p>
+
+
+
+
+
+
+<h3>Value</h3>
+
+<p>A numeric vector of weights, where the highest-abundance window in each cluster is assigned a greater weight.
+Any windows with <code>NA</code> values for <code>ids</code> or <code>summits</code> will have a weight of zero.
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p>Aaron Lun
+</p>
+
+
+<h3>References</h3>
+
+<p>Benjamini Y and Hochberg Y (1997). Multiple hypotheses testing with weights. <em>Scand. J. Stat.</em> 24, 407-418.
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="../../csaw/help/combineTests.html">combineTests</a></code>,
+<code><a href="../../csaw/help/findMaxima.html">findMaxima</a></code>,
+<code><a href="../../csaw/help/getBestTest.html">getBestTest</a></code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+nwin &lt;- 20
+set.seed(20)
+ids &lt;- sample(5, nwin, replace=TRUE)	
+summits &lt;- sample(5, nwin, replace=TRUE)==1L
+weights &lt;- upweightSummit(ids, summits)
+
+# Checking that the summit is upweighted in each cluster.
+split(data.frame(summits, weights), ids)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>csaw</em> version 1.26.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

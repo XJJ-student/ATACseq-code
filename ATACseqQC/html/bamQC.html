@@ -1,0 +1,76 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Mapping quality control</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for bamQC {ATACseqQC}"><tr><td>bamQC {ATACseqQC}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Mapping quality control</h2>
+
+<h3>Description</h3>
+
+<p>Check the mapping rate, PCR duplication rate,
+and mitochondria reads contamination.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+bamQC(
+  bamfile,
+  index = bamfile,
+  mitochondria = "chrM",
+  outPath = sub(".bam", ".clean.bam", basename(bamfile)),
+  doubleCheckDup = FALSE
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>bamfile</code></td>
+<td>
+<p>character(1). File name of bam.</p>
+</td></tr>
+<tr valign="top"><td><code>index</code></td>
+<td>
+<p>character(1). File name of index file.</p>
+</td></tr>
+<tr valign="top"><td><code>mitochondria</code></td>
+<td>
+<p>character(1). Sequence name of mitochondria.</p>
+</td></tr>
+<tr valign="top"><td><code>outPath</code></td>
+<td>
+<p>character(1). File name of cleaned bam.</p>
+</td></tr>
+<tr valign="top"><td><code>doubleCheckDup</code></td>
+<td>
+<p>logical(1). Double check duplicates or not if there is no tags for that.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>A list of quality summary.
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p>Jianhong Ou
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+bamfile &lt;- system.file("extdata", "GL1.bam", package="ATACseqQC")
+bamQC(bamfile, outPath=NULL)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>ATACseqQC</em> version 1.16.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

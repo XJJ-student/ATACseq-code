@@ -1,0 +1,146 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: split bams into nucleosome free, mononucleosome, dinucleosome...</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for splitGAlignmentsByCut {ATACseqQC}"><tr><td>splitGAlignmentsByCut {ATACseqQC}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>split bams into nucleosome free, mononucleosome,
+dinucleosome and trinucleosome</h2>
+
+<h3>Description</h3>
+
+<p>use random forest to split the reads into nucleosome free,
+mononucleosome, dinucleosome and trinucleosome. 
+The features used in random forest including 
+fragment length, GC content, and 
+UCSC phastCons conservation scores.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+splitGAlignmentsByCut(
+  obj,
+  txs,
+  genome,
+  conservation,
+  outPath,
+  breaks = c(0, 100, 180, 247, 315, 473, 558, 615, Inf),
+  labels = c("NucleosomeFree", "inter1", "mononucleosome", "inter2", "dinucleosome",
+    "inter3", "trinucleosome", "others"),
+  labelsOfNucleosomeFree = "NucleosomeFree",
+  labelsOfMononucleosome = "mononucleosome",
+  trainningSetPercentage = 0.15,
+  cutoff = 0.8,
+  halfSizeOfNucleosome = 80L
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>obj</code></td>
+<td>
+<p>an object of <a href="../../GenomicAlignments/help/GAlignments-class.html">GAlignments</a></p>
+</td></tr>
+<tr valign="top"><td><code>txs</code></td>
+<td>
+<p>GRanges of transcripts</p>
+</td></tr>
+<tr valign="top"><td><code>genome</code></td>
+<td>
+<p>an object of BSgenome</p>
+</td></tr>
+<tr valign="top"><td><code>conservation</code></td>
+<td>
+<p>an object of <a href="../../GenomicScores/help/GScores-class.html">GScores</a>.</p>
+</td></tr>
+<tr valign="top"><td><code>outPath</code></td>
+<td>
+<p>folder to save the splitted alignments. If outPath is setting, 
+the return of the function will not contain seq and qual fields.</p>
+</td></tr>
+<tr valign="top"><td><code>breaks</code></td>
+<td>
+<p>a numeric vector for fragment size of nucleosome free,
+mononucleosome, dinucleosome and trinucleosome. The breaks pre-defined
+here is following the description of Greenleaf's paper (see reference).</p>
+</td></tr>
+<tr valign="top"><td><code>labels</code></td>
+<td>
+<p>a character vector for labels of the levels 
+of the resulting category.</p>
+</td></tr>
+<tr valign="top"><td><code>labelsOfNucleosomeFree, labelsOfMononucleosome</code></td>
+<td>
+<p>character(1). The label
+for nucleosome free and mononucleosome.</p>
+</td></tr>
+<tr valign="top"><td><code>trainningSetPercentage</code></td>
+<td>
+<p>numeric(1) between 0 and 1. Percentage of 
+trainning set from top coverage.</p>
+</td></tr>
+<tr valign="top"><td><code>cutoff</code></td>
+<td>
+<p>numeric(1) between 0 and 1. cutoff value for prediction.</p>
+</td></tr>
+<tr valign="top"><td><code>halfSizeOfNucleosome</code></td>
+<td>
+<p>numeric(1) or integer(1). Thre read length will
+be adjusted to half of the nucleosome size to enhance the signal-to-noise
+ratio.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>a list of GAlignments
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p>Jianhong Ou
+</p>
+
+
+<h3>References</h3>
+
+<p>Buenrostro, J.D., Giresi, P.G., Zaba, L.C., Chang, H.Y. and 
+Greenleaf, W.J., 2013. Transposition of native chromatin for fast and 
+sensitive epigenomic profiling of open chromatin, DNA-binding proteins and 
+nucleosome position. Nature methods, 10(12), pp.1213-1218.
+</p>
+<p>Chen, K., Xi, Y., Pan, X., Li, Z., Kaestner, K., Tyler, J., Dent, S., 
+He, X. and Li, W., 2013. DANPOS: dynamic analysis of nucleosome position 
+and occupancy by sequencing. Genome research, 23(2), pp.341-351.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+library(GenomicRanges)
+bamfile &lt;- system.file("extdata", "GL1.bam", 
+                       package="ATACseqQC", mustWork=TRUE)
+tags &lt;- c("AS", "XN", "XM", "XO", "XG", "NM", "MD", "YS", "YT")
+gal1 &lt;- readBamFile(bamFile=bamfile, tag=tags, 
+                    which=GRanges("chr1", IRanges(1, 1e6)), 
+                    asMates=FALSE)
+names(gal1) &lt;- mcols(gal1)$qname
+library(BSgenome.Hsapiens.UCSC.hg19)
+library(TxDb.Hsapiens.UCSC.hg19.knownGene)
+txs &lt;- transcripts(TxDb.Hsapiens.UCSC.hg19.knownGene)
+library(phastCons100way.UCSC.hg19)
+splitGAlignmentsByCut(gal1, txs=txs, genome=Hsapiens, 
+                      conservation=phastCons100way.UCSC.hg19)
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>ATACseqQC</em> version 1.16.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

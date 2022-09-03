@@ -1,0 +1,90 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: SummarizedExperiment to DGEList</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for SEmethods {csaw}"><tr><td>SEmethods {csaw}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>SummarizedExperiment to DGEList</h2>
+
+<h3>Description</h3>
+
+<p>Converting a SummarizedExperiment object to a DGEList object for analysis with <span class="pkg">edgeR</span>.</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+## S4 method for signature 'SummarizedExperiment'
+asDGEList(object, lib.sizes, norm.factors, assay.id="counts", ...)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>object</code></td>
+<td>
+<p>A SummarizedExperiment object or its derived classes, like that produced by <code><a href="../../csaw/help/windowCounts.html">windowCounts</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>lib.sizes</code></td>
+<td>
+<p>An (optional) integer vector of library sizes.</p>
+</td></tr>
+<tr valign="top"><td><code>norm.factors</code></td>
+<td>
+<p>An (optional) numeric vector of normalization factors.</p>
+</td></tr>
+<tr valign="top"><td><code>assay.id</code></td>
+<td>
+<p>A string or integer scalar indicating which assay in <code>object</code> contains the count matrix.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Other arguments to be passed to <code><a href="../../DEFormats/html/DGEList.html">DGEList</a></code>.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>Counts are extracted from specified <code>assay</code> matrix in the SummarizedExperiment object and used to construct a DGEList object via <code><a href="../../DEFormats/html/DGEList.html">DGEList</a></code>.
+If not specified in <code>lib.sizes</code>, library sizes are taken from the <code>totals</code> field in the column data of <code>object</code>.
+Warnings will be generated if this field is not present.
+</p>
+<p>If <code>norm.factors</code> is not specified, <code>asDGEList</code> will attempt to extract normalization factors from <code>object$norm.factors</code>.
+If this is not available, factors will be set to the default (all unity).
+If <code>assays(object)$offset</code> is present, this will be assigned to the <code>offset</code> field of the output <code>DGEList</code> object.
+</p>
+
+
+<h3>Value</h3>
+
+<p>A DGEList object is returned containing counts and normalization information.
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p>Aaron Lun</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="../../DEFormats/html/DGEList.html">DGEList</a></code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+bamFiles &lt;- system.file("exdata", c("rep1.bam", "rep2.bam"), package="csaw")
+data &lt;- windowCounts(bamFiles, width=100, filter=1)
+
+asDGEList(data)
+asDGEList(data, lib.sizes=c(10, 100))
+asDGEList(data, norm.factors=c(1.11, 2.23), group=c("a", "b"))
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>csaw</em> version 1.26.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

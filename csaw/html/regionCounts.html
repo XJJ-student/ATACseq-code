@@ -1,0 +1,107 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Count reads overlapping each region</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for regionCounts {csaw}"><tr><td>regionCounts {csaw}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Count reads overlapping each region</h2>
+
+<h3>Description</h3>
+
+<p>Count the number of extended reads overlapping pre-specified regions</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+regionCounts(bam.files, regions, ext=100, param=readParam(),
+    BPPARAM=SerialParam())
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>bam.files</code></td>
+<td>
+<p>A character vector containing paths to sorted and indexed BAM files.
+Alternatively, a list of <a href="../../Rsamtools/html/BamFile-class.html">BamFile</a> objects.</p>
+</td></tr>
+<tr valign="top"><td><code>regions</code></td>
+<td>
+<p>A <a href="../../GenomicRanges/html/GRanges-class.html">GenomicRanges</a> object containing the regions over which reads are to be counted.</p>
+</td></tr>
+<tr valign="top"><td><code>ext</code></td>
+<td>
+<p>An integer scalar or list describing the average length of the sequenced fragment in each library, see <code>?<a href="../../csaw/help/windowCounts.html">windowCounts</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>param</code></td>
+<td>
+<p>A <a href="../../csaw/help/readParam-class.html">readParam</a> object containing read extraction parameters, or a list of such objects (one for each BAM file).</p>
+</td></tr>
+<tr valign="top"><td><code>BPPARAM</code></td>
+<td>
+<p>A <a href="../../BiocParallel/html/BiocParallelParam-class.html">BiocParallelParam</a> specifying how parallelization is to be performed across files.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>This function simply provides a wrapper around <code><a href="../../GenomicRanges/html/findOverlaps-methods.html">countOverlaps</a></code> for read counting into specified regions. 
+It is provided so as to allow for counting with awareness of the other parameters, e.g., <code>ext</code>, <code>pe</code>.
+This allows users to coordinate region-based counts with those from <code><a href="../../csaw/help/windowCounts.html">windowCounts</a></code>. 
+Checking that the output <code>totals</code> are the same between the two calls is strongly recommended.
+</p>
+<p>Note that the strandedness of <code>regions</code> will not be considered when computing overlaps.
+In other words, both forward and reverse reads will be counted into each region, regardless of the strandedness of that region.
+This can be altered by setting the <code>forward</code> slot in the <code>param</code> object to only count reads from one strand or the other.
+The strandedness of the output <code>rowRanges</code> will depend on the strand(s) from which reads were counted.
+</p>
+<p>See <code><a href="../../csaw/help/windowCounts.html">windowCounts</a></code> for more details on read extension.
+</p>
+
+
+<h3>Value</h3>
+
+<p>A <a href="../../SummarizedExperiment/html/RangedSummarizedExperiment-class.html">RangedSummarizedExperiment</a> object is returned containing one integer matrix.
+Each entry of the matrix contains the count for each library (column) at each region (row).
+The coordinates of each region are stored as the <code>rowRanges</code>.
+The total number of reads, read length and extension length used in each library are stored in the <code>colData</code>.
+Other parameters (e.g., <code>param</code>) are stored in the <code>metadata</code>.
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p>Aaron Lun</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="../../GenomicRanges/html/findOverlaps-methods.html">countOverlaps</a></code>,
+<code><a href="../../csaw/help/windowCounts.html">windowCounts</a></code>,
+<code><a href="../../csaw/help/readParam.html">readParam</a></code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+# A low filter is only used here as the examples have very few reads.
+bamFiles &lt;- system.file("exdata", c("rep1.bam", "rep2.bam"), package="csaw")
+incoming &lt;- GRanges(c('chrA', 'chrA', 'chrB', 'chrC'), 
+    IRanges(c(1, 500, 100, 1000), c(200, 1000, 700, 1500)))
+regionCounts(bamFiles, regions=incoming)
+regionCounts(bamFiles, regions=incoming, param=readParam(restrict="chrB"))
+
+# Loading PE data.
+bamFile &lt;- system.file("exdata", "pet.bam", package="csaw")
+regionCounts(bamFile, regions=incoming, param=readParam(pe="both"))
+regionCounts(bamFile, regions=incoming, param=readParam(max.frag=100, 
+	pe="first", restrict="chrA"))
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>csaw</em> version 1.26.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

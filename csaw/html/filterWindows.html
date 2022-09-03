@@ -1,0 +1,292 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Filtering methods for RangedSummarizedExperiment objects</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for filterWindows {csaw}"><tr><td>filterWindows {csaw}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Filtering methods for RangedSummarizedExperiment objects</h2>
+
+<h3>Description</h3>
+
+<p>Convenience functions to compute filter statistics for windows, 
+based on proportions or using enrichment over background.</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+filterWindowsGlobal(data, background, assay.data="counts", 
+    assay.back="counts", prior.count=2, grid.pts=21)
+
+filterWindowsLocal(data, background, assay.data="counts", 
+    assay.back="counts", prior.count=2)
+
+filterWindowsControl(data, background, assay.data="counts", 
+    assay.back="counts", prior.count=2, scale.info=NULL)
+
+filterWindowsProportion(data, assay.data="counts", prior.count=2)
+
+scaleControlFilter(data.bin, back.bin, assay.data="counts", 
+    assay.back="counts")
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>data</code></td>
+<td>
+<p>A <a href="../../SummarizedExperiment/html/RangedSummarizedExperiment-class.html">RangedSummarizedExperiment</a> object containing window-level counts.</p>
+</td></tr>
+<tr valign="top"><td><code>background</code></td>
+<td>
+<p>A <a href="../../SummarizedExperiment/html/RangedSummarizedExperiment-class.html">RangedSummarizedExperiment</a> object to be used for estimating background enrichment.
+</p>
+
+<ul>
+<li><p> For <code>filterWindowsGlobal</code>, this should contain counts for large contiguous bins across the genome,
+for the same samples used to construct <code>data</code>.
+</p>
+</li>
+<li><p> For <code>filterWindowsLocal</code>, this should contain counts for regions in which <code>rowRanges(data)</code> is nested,
+for the same samples used to construct <code>data</code>.
+</p>
+</li>
+<li><p> For <code>filterWindowsControl</code>, this should contain count for the same regions as <code>rowRanges(data)</code>
+for control samples.
+</p>
+</li></ul>
+</td></tr>
+<tr valign="top"><td><code>assay.data</code></td>
+<td>
+<p>A string or integer scalar specifying the assay containing window/bin counts in <code>data</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>assay.back</code></td>
+<td>
+<p>A string or integer scalar specifying the assay containing window/bin counts in <code>background</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>prior.count</code></td>
+<td>
+<p>A numeric scalar, specifying the prior count to use in <code><a href="../../csaw/help/scaledAverage.html">scaledAverage</a></code>.</p>
+</td></tr>
+<tr valign="top"><td><code>scale.info</code></td>
+<td>
+<p>A list containing the output of <code>scaleControlFilter</code>, 
+i.e., a normalization factor and library sizes for ChIP and control samples.</p>
+</td></tr>
+<tr valign="top"><td><code>data.bin</code></td>
+<td>
+<p>A RangedSummarizedExperiment containing bin-level counts for ChIP libraries.</p>
+</td></tr>
+<tr valign="top"><td><code>back.bin</code></td>
+<td>
+<p>A RangedSummarizedExperiment containing bin-level counts for control libraries.</p>
+</td></tr>
+<tr valign="top"><td><code>grid.pts</code></td>
+<td>
+<p>An integer scalar specifying the number of grid points to use for interpolation when <code>data</code> contains variable-width intervals,
+e.g., for peaks or other regions instead of windows.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>The aim of these functions is to compute a filter statistic for each window,
+according to various abundance-based definitions that are discussed below.
+Windows can then be filtered to retain those with large filter statistics.
+This selects for high-abundance windows that are more likely to contain genuine binding sites
+and thus are more interesting for downstream (differential binding) analyses.
+</p>
+
+
+<h3>Value</h3>
+
+<p>All filtering functions return a named list containing:
+</p>
+
+<ul>
+<li> <p><code>abundances</code>, a numeric vector containing the average abundance of each row in <code>data</code>.
+</p>
+</li>
+<li> <p><code>filter</code>, a numeric vector containing the filter statistic for the given <code>type</code> for each row.
+The definition of this filter statistic will vary across the different methods.
+</p>
+</li>
+<li> <p><code>back.abundances</code>, a numeric vector containing the background abundance for each row in <code>data</code>.
+Not reported for <code>filterWindowsProportion</code>.
+</p>
+</li></ul>
+
+<p>For <code>scaleControlFilter</code>, a named list is returned containing:
+</p>
+
+<ul>
+<li> <p><code>scale</code>, a numeric scalar containing the scaling factor for multiplying the control counts.
+</p>
+</li>
+<li> <p><code>data.totals</code>, a numeric vector containing the library sizes for <code>data</code>.
+</p>
+</li>
+<li> <p><code>back.totals</code>, anumeric vector containing the library sizes for <code>background</code>.
+</p>
+</li></ul>
+
+
+
+<h3>Proportion-based filtering</h3>
+
+<p><code>filterWindowsProportion</code> supposes that a certain percentage of the genome (by length) is genuinely bound.
+The filter statistic is defined as the ratio of the rank in abundance to the total number of windows.
+Rank is in ascending order, i.e., higher abundance windows have higher ratios.
+Windows are retained that have rank ratios above a threshold, e.g., 0.99 if 1% of the genome is assumed to be bound.
+</p>
+<p>The definition of the rank is dependent on the total number of windows in the genome.
+However, empty windows or bins are automatically discarded in <code><a href="../../csaw/help/windowCounts.html">windowCounts</a></code> 
+(exacerbated if <code>filter</code> is set above unity).
+This will result in underestimation of the rank or overestimation of the global background.
+To avoid this, the total number of windows is inferred from the spacing.
+</p>
+
+
+<h3>Global background filtering</h3>
+
+<p><code>filterWindowsGlobal</code> uses the median average abundance across the genome as a global estimate of the background abundance.
+This assumes that <code>background</code> contains unfiltered counts for large (2 - 10 kbp) genomic bins, 
+from which the background abundance can be stably computed.
+The filter statistic for each window is defined as the difference between the window abundance and the global background,
+after adjusting for the differences in widths between windows and bins.
+</p>
+<p>Similarly to <code>filterWindowsProportion</code>, the total number of bins is inferred from their width in <code>background</code>.
+This avoids overestimating the global background if some filtering has already been applied to the bins.
+
+</p>
+<p>The calculation is fairly straightforward for window-level counts where all <code><a href="../../DelayedArray/html/DelayedMatrix-stats.html">rowRanges</a>(data)</code> are of the same width. 
+If the widths are variable (e.g., because <code>data</code> contains counts for peaks, genes or other irregular features), 
+the adjustment for differences in width needs to performed separately for each unique width.
+If there are more than <code>grid.pts</code> unique widths, we expedite this process by computing the adjustment for <code>grid.pts</code> widths
+and interpolating to obtain the adjusted background at each width.
+</p>
+<p>If <code>background</code> is not supplied, the background abundance is directly computed from entries in <code>data</code>.
+This assumes that <code>data</code> contains windows for most of the regions in the genome,
+and that the coverage is sufficiently high across most windows to obtain a stable background estimate.
+</p>
+
+
+<h3>Local background filtering</h3>
+
+<p><code>filterWindowsLocal</code> compares the abundance of each window to the flanking regions.
+This considers each window to contain the entirety of a binding event, 
+where any coverage of the surrounding regions is treated as background enrichment.
+It is analogous to the behaviour of peak-calling methods and accounts for local fluctuations in background,
+e.g., due to differences in mappability, sequenceability or accessibility.
+</p>
+<p>We assume that each region in <code>data</code> is nested within each corresponding region of <code>background</code>.
+The counts of each row in <code>data</code> are then subtracted from those of the corresponding row in <code>background</code>.
+The average abundance of the remaining counts is computed and used as the background abundance.
+The filter statistic is defined by subtracting the background abundance from the corresponding window abundance for each row.
+</p>
+<p>To generate <code>background</code>, we suggest using <code><a href="../../csaw/help/regionCounts.html">regionCounts</a></code> on a <code><a href="../../EBImage/html/spatial.html">resize</a></code>d <code>rowRanges(data)</code> -
+see Examples.
+</p>
+
+
+<h3>Control-based filtering</h3>
+
+ 
+<p>In <code>filterWindowsControl</code>, we assume that <code>data</code> contains window-level counts for ChIP samples,
+while <code>background</code> contains counts for the same windows in the control samples.
+(However, it is also possible to supply nested regions as described in <code>filterWindowsLocal</code>,
+where each interval in <code>background</code> includes the flanking regions around the corresponding entry in <code>data</code>.)
+For each window in <code>data</code>, 
+the background abundance is defined as the average abundance of the corresponding row in <code>background</code>.
+The filter statistic is defined as the difference between the window's average abundance and its background abundance.
+</p>
+<p>Composition biases are likely to be present between ChIP and control samples, 
+where increased binding at some loci reduces coverage of other loci in the ChIP samples.
+This incorrectly results in smaller filter statistics for the latter loci, as the fold-change over the input is reduced.
+To correct for this, a normalization factor between ChIP and control samples can be computed with <code>scaleControlFilter</code>
+and passed to <code>filterWindowsControl</code> using the <code>scale.info</code> argument.
+A warning is raised if <code>scale.info=NULL</code>. 
+</p>
+<p>To use <code>scaleControlFilter</code>, users should supply two <a href="../../SummarizedExperiment/html/RangedSummarizedExperiment-class.html">RangedSummarizedExperiment</a> objects, 
+each containing the counts for large (~10 kbp) bins in the ChIP and control samples.
+The difference in the average abundance between the two objects is computed for each bin.
+The median of the differences across all bins is used as a normalization factor to correct the filter statistics for each window.
+The assumption is that most bins represent background regions, 
+such that a systematic difference in abundance between ChIP and control should represent the composition bias.
+</p>
+<p><code>scaleControlFilter</code> will also store the library sizes for each object in its output.
+This is used to check that <code>data</code> and <code>background</code> have the same library sizes.
+Otherwise, the normalization factor computed with bin-level counts cannot be correctly applied to the window-level counts.
+</p>
+
+
+<h3>Details on filter statistic calculations</h3>
+
+<p>When computing the filter statistic in background-based methods
+the abundances of bins/regions in <code>background</code> must be rescaled for comparison to those of smaller windows 
+- see <code><a href="../../csaw/help/getWidths.html">getWidths</a></code> and <code><a href="../../csaw/help/scaledAverage.html">scaledAverage</a></code> for more details.
+In particular, the effective width of the window is often larger than the <code>width</code> used in <code><a href="../../csaw/help/windowCounts.html">windowCounts</a></code>
+due to the counting of fragments rather than reads.
+The fragment length is extracted from <code>data$ext</code> and <code>background$ext</code>, 
+though users will need to set <code>data$rlen</code> or <code>background$rlen</code> for unextended reads (i.e., <code>ext=NA</code>).
+</p>
+<p>The <code>prior.count</code> protects against inflated log-fold increases when the background counts are near zero.
+A low prior is sufficient if <code>background</code> has large counts, which is usually the case for wide regions.
+Otherwise, if the set of windows with large filter statistics are dominated by low counts,
+<code>prior.count</code> should be increased to a larger value like 5.
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="../../csaw/help/windowCounts.html">windowCounts</a></code>,
+<code><a href="../../edgeR/html/aveLogCPM.html">aveLogCPM</a></code>,
+<code><a href="../../csaw/help/getWidths.html">getWidths</a></code>,
+<code><a href="../../csaw/help/scaledAverage.html">scaledAverage</a></code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+bamFiles &lt;- system.file("exdata", c("rep1.bam", "rep2.bam"), package="csaw")
+data &lt;- windowCounts(bamFiles, filter=1)
+
+# Proportion-based (keeping top 1%)
+stats &lt;- filterWindowsProportion(data)
+head(stats$filter)
+keep &lt;- stats$filter &gt; 0.99 
+new.data &lt;- data[keep,]
+
+# Global background-based (keeping fold-change above 3).
+background &lt;- windowCounts(bamFiles, bin=TRUE, width=300)
+stats &lt;- filterWindowsGlobal(data, background)
+head(stats$filter)
+keep &lt;- stats$filter &gt; log2(3)
+
+# Local background-based.
+locality &lt;- regionCounts(bamFiles, resize(rowRanges(data), fix="center", 300))
+stats &lt;- filterWindowsLocal(data, locality)
+head(stats$filter)
+keep &lt;- stats$filter &gt; log2(3)
+
+# Control-based, with binning for normalization (pretend rep2.bam is a control).
+binned &lt;- windowCounts(bamFiles, width=10000, bin=TRUE)
+chip.bin &lt;- binned[,1]
+con.bin &lt;- binned[,2]
+scinfo &lt;- scaleControlFilter(chip.bin, con.bin)
+
+chip.data &lt;- data[,1]
+con.data &lt;- data[,2]
+stats &lt;- filterWindowsControl(chip.data, con.data,
+    prior.count=5, scale.info=scinfo)
+
+head(stats$filter)
+keep &lt;- stats$filter &gt; log2(3)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>csaw</em> version 1.26.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

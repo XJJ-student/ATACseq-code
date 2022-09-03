@@ -1,0 +1,89 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Nucleosome Free Regions (NFR) score</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for NFRscore {ATACseqQC}"><tr><td>NFRscore {ATACseqQC}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Nucleosome Free Regions (NFR) score</h2>
+
+<h3>Description</h3>
+
+<p>NFR score is a raio between cut signal adjacent to TSS and that flanking 
+the corresponding TSS. Each TSS window of 400 bp is first seperated into 3 sub-regions: 
+the most upstream 150 bp (n1), the most downstream of 150 bp (n2), and the middle 100 bp (nf). 
+Then the number of fragments with 5' ends overlapping each region are calculated for each TSS.
+The NFR score for each TSS is calculated as NFR-score = log2(nf) - log2((n1+n2)/2). 
+A plot can be generate with the NFR scores as Y-axis and the average signals of 400 bp window as X-axis,
+very like a MA plot for gene expression data.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+NFRscore(
+  obj,
+  txs,
+  seqlev = intersect(seqlevels(obj), seqlevels(txs)),
+  nucleosomeSize = 150,
+  nucleosomeFreeSize = 100
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>obj</code></td>
+<td>
+<p>an object of <a href="../../GenomicAlignments/help/GAlignments-class.html">GAlignments</a></p>
+</td></tr>
+<tr valign="top"><td><code>txs</code></td>
+<td>
+<p>GRanges of transcripts</p>
+</td></tr>
+<tr valign="top"><td><code>seqlev</code></td>
+<td>
+<p>A vector of characters indicates the sequence levels.</p>
+</td></tr>
+<tr valign="top"><td><code>nucleosomeSize</code></td>
+<td>
+<p>numeric(1) or integer(1). Default is 150</p>
+</td></tr>
+<tr valign="top"><td><code>nucleosomeFreeSize</code></td>
+<td>
+<p>numeric(1) or integer(1). Default is 100</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>A object of <a href="../../GenomicRanges/help/GRanges-class.html">GRanges</a> with NFR scores
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p>Jianhong Ou
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+ 
+library(GenomicRanges)
+bamfile &lt;- system.file("extdata", "GL1.bam", 
+                       package="ATACseqQC", mustWork=TRUE)
+gal1 &lt;- readBamFile(bamFile=bamfile, tag=character(0), 
+                    which=GRanges("chr1", IRanges(1, 1e6)), 
+                    asMates=FALSE)
+library(TxDb.Hsapiens.UCSC.hg19.knownGene)
+txs &lt;- transcripts(TxDb.Hsapiens.UCSC.hg19.knownGene)
+nfr &lt;- NFRscore(gal1, txs)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>ATACseqQC</em> version 1.16.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

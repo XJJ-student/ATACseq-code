@@ -1,0 +1,85 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Library complexity estimation</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for estimateLibComplexity {ATACseqQC}"><tr><td>estimateLibComplexity {ATACseqQC}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Library complexity estimation</h2>
+
+<h3>Description</h3>
+
+<p>Estimating the library complexity.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+estimateLibComplexity(
+  histFile,
+  times = 100,
+  interpolate.sample.sizes = seq(0.1, 1, by = 0.1),
+  extrapolate.sample.sizes = seq(5, 20, by = 5)
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>histFile</code></td>
+<td>
+<p>A two-column matrix of integers. The 1st column is the frequency 
+j = 1,2,3,.... The 2nd column is the number of genomic regions with the same 
+fequency (j) of duplication. This file should be sorted by the first column 
+in ascending order. For example, one row of a histogram file:
+10    20
+means there are 10 genomic regions, each of which is covered by 20 identical 
+fragments at a given sequencing depth of a sequencing library.</p>
+</td></tr>
+<tr valign="top"><td><code>times</code></td>
+<td>
+<p>An positive integer representing the minimum required number of 
+successful estimation. Default is 100.</p>
+</td></tr>
+<tr valign="top"><td><code>interpolate.sample.sizes</code></td>
+<td>
+<p>A numeric vector with values between (0, 1].</p>
+</td></tr>
+<tr valign="top"><td><code>extrapolate.sample.sizes</code></td>
+<td>
+<p>A numeric vector with values greater than 1.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>invisible estimates, a data frame of 3 columns: relative sequence depth, 
+number of distinct fragments, number of putative sequenced reads.
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p>Haibo Liu, Feng Yan
+</p>
+
+
+<h3>See Also</h3>
+
+<p><a href="../../ATACseqQC/help/readsDupFreq.html">readsDupFreq</a>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+library(preseqR)
+data(FisherButterfly)
+estimateLibComplexity(histFile=FisherButterfly, times=100)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>ATACseqQC</em> version 1.16.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

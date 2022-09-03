@@ -1,0 +1,77 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: fragment size distribution</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for fragSizeDist {ATACseqQC}"><tr><td>fragSizeDist {ATACseqQC}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>fragment size distribution</h2>
+
+<h3>Description</h3>
+
+<p>estimate the fragment size of bams
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+fragSizeDist(
+  bamFiles,
+  bamFiles.labels,
+  index = bamFiles,
+  ylim = NULL,
+  logYlim = NULL
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>bamFiles</code></td>
+<td>
+<p>A vector of characters indicates the file names of bams.</p>
+</td></tr>
+<tr valign="top"><td><code>bamFiles.labels</code></td>
+<td>
+<p>labels of the bam files, used for pdf file naming.</p>
+</td></tr>
+<tr valign="top"><td><code>index</code></td>
+<td>
+<p>The names of the index file of the 'BAM' file being processed;
+This is given without the '.bai' extension.</p>
+</td></tr>
+<tr valign="top"><td><code>ylim</code></td>
+<td>
+<p>numeric(2). ylim of the histogram.</p>
+</td></tr>
+<tr valign="top"><td><code>logYlim</code></td>
+<td>
+<p>numeric(2). ylim of log-transformed histogram for the insert.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>Invisible fragment length distribution list.
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p>Jianhong Ou
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+bamFiles &lt;- dir(system.file("extdata", package="ATACseqQC"), "GL.*.bam$", full.names=TRUE)
+bamFiles.labels &lt;- sub(".bam", "", basename(bamFiles))
+fragSizeDist(bamFiles, bamFiles.labels)
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>ATACseqQC</em> version 1.16.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

@@ -1,0 +1,174 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Combine statistics for overlap-based clusters</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for overlapStats {csaw}"><tr><td>overlapStats {csaw}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Combine statistics for overlap-based clusters</h2>
+
+<h3>Description</h3>
+
+<p>Compute assorted statistics for overlaps between windows and pre-defined genomic regions in a <a href="../../S4Vectors/html/Hits-class.html">Hits</a> object.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+combineOverlaps(overlaps, tab, o.weights = NULL, i.weights = NULL, ...)
+
+getBestOverlaps(overlaps, tab, o.weights = NULL, i.weights = NULL, ...)
+
+empiricalOverlaps(overlaps, tab, o.weights = NULL, i.weights = NULL, ...)
+
+mixedOverlaps(overlaps, tab, o.weights = NULL, i.weights = NULL, ...)
+
+summitOverlaps(overlaps, region.best, o.summit = NULL, i.summit = NULL)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>overlaps</code></td>
+<td>
+<p>A <a href="../../S4Vectors/html/Hits-class.html">Hits</a> object produced by <code><a href="../../DEXSeq/html/methods-gr.html">findOverlaps</a></code>, 
+containing overlaps between regions (query) and windows (subject).</p>
+</td></tr>
+<tr valign="top"><td><code>tab</code></td>
+<td>
+<p>A data.frame of (differential binding) statistics for each window.</p>
+</td></tr>
+<tr valign="top"><td><code>o.weights</code></td>
+<td>
+<p>A numeric vector specifying weights for each overlapped window.</p>
+</td></tr>
+<tr valign="top"><td><code>i.weights</code></td>
+<td>
+<p>A numeric vector specifying weights for each individual window.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Other arguments to be passed to the wrapped functions.</p>
+</td></tr>
+<tr valign="top"><td><code>region.best</code></td>
+<td>
+<p>An integer vector specifying the window index that is the summit for each region.</p>
+</td></tr>
+<tr valign="top"><td><code>o.summit</code></td>
+<td>
+<p>A logical vector specifying the overlapped windows that are summits, 
+or a corresponding integer vector of indices for such windows.</p>
+</td></tr>
+<tr valign="top"><td><code>i.summit</code></td>
+<td>
+<p>A logical vector specifying whether an individual window is a summit, 
+or a corresponding integer vector of indices.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>These functions provide convenient wrappers around <code><a href="../../csaw/help/combineTests.html">combineTests</a></code>, <code><a href="../../csaw/help/getBestTest.html">getBestTest</a></code>, 
+<code><a href="../../csaw/help/empiricalFDR.html">empiricalFDR</a></code>, <code><a href="../../csaw/help/mixedClusters.html">mixedClusters</a></code> and <code><a href="../../csaw/help/upweightSummit.html">upweightSummit</a></code> 
+for handling overlaps between windows and arbitrary pre-specified regions.
+They accept <a href="../../S4Vectors/html/Hits-class.html">Hits</a> objects produced by running <code><a href="../../DEXSeq/html/methods-gr.html">findOverlaps</a></code> 
+between regions (as the query) and windows (as the subject).
+Each set of windows overlapping a region is defined as a cluster to compute various statistics.
+</p>
+<p>A wrapper is necessary as a window may overlap multiple regions.
+If so, the multiple instances of that window are defined as distinct &ldquo;overlapped&rdquo; windows, 
+where each overlapped window is assigned to a different region.
+Each overlapped window is represented by a separate entry of <code>overlaps</code>.
+In contrast, the &ldquo;individual&rdquo; window just refers to the window itself, regardless of what it overlaps.
+This is represented by each row of the <a href="../../SummarizedExperiment/html/RangedSummarizedExperiment-class.html">RangedSummarizedExperiment</a> object and the <code>tab</code> derived from it.
+</p>
+<p>The distinction between these two definitions is required to describe the weight arguments.
+The <code>o.weights</code> argument refers to the weights for each region-window relationship.
+This allows for different weights to be assigned to the same window in different regions.
+The <code>i.weights</code> argument is the weight of the window itself, and is the same regardless of the region.
+If both are specified, <code>o.weights</code> takes precedence.
+</p>
+<p>For <code>summitOverlaps</code>, the <code>region.best</code> argument is designed to accept the <code>rep.test</code> field in the output of <code>getBestOverlaps</code> (run with <code>by.pval=FALSE</code>).
+This contains the index for the individual window that is the summit within each region.
+In contrast, the <code>i.summit</code> argument indicates whether an individual window is a summit, e.g., from <code><a href="../../csaw/help/findMaxima.html">findMaxima</a></code>.
+The <code>o.summit</code> argument does the same for overlapped windows, though this has no obvious input within the <code>csaw</code> pipeline.
+</p>
+
+
+<h3>Value</h3>
+
+<p>For <code>combineOverlaps</code>, <code>getBestOverlaps</code>, <code>empiricalOverlaps</code> and <code>mixedOverlaps</code>, 
+a <a href="../../S4Vectors/html/DataFrame-class.html">DataFrame</a> is returned from their respective wrapped functions.
+Each row of the DataFrame corresponds to a region, where regions without overlapped windows are assigned <code>NA</code> values.
+</p>
+<p>For <code>summitOverlaps</code>, a numeric vector of weights is produced.
+This can be used as <code>o.weight</code> in the other two functions.
+</p>
+
+
+<h3>Author(s)</h3>
+
+<p>Aaron Lun
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="../../csaw/help/combineTests.html">combineTests</a></code>,
+<code><a href="../../csaw/help/getBestTest.html">getBestTest</a></code>,
+<code><a href="../../csaw/help/empiricalFDR.html">empiricalFDR</a></code> and
+<code><a href="../../csaw/help/upweightSummit.html">upweightSummit</a></code>,
+for the underlying functions.
+</p>
+<p><code><a href="../../DEXSeq/html/methods-gr.html">findOverlaps</a></code>, to generate the required <a href="../../S4Vectors/html/Hits-class.html">Hits</a> object.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+bamFiles &lt;- system.file("exdata", c("rep1.bam", "rep2.bam"), package="csaw")
+data &lt;- windowCounts(bamFiles, width=1, filter=1)
+of.interest &lt;- GRanges(c('chrA', 'chrA', 'chrB', 'chrC'), 
+    IRanges(c(1, 500, 100, 1000), c(200, 1000, 700, 1500)))
+
+# Making some mock results.
+N &lt;- nrow(data)
+mock &lt;- data.frame(logFC=rnorm(N), PValue=runif(N), logCPM=rnorm(N))
+
+olap &lt;- findOverlaps(of.interest, rowRanges(data))
+combineOverlaps(olap, mock)
+getBestOverlaps(olap, mock)
+empiricalOverlaps(olap, mock)
+
+# See what happens when you don't get many overlaps.
+getBestOverlaps(olap[1,], mock)
+combineOverlaps(olap[2,], mock)
+empiricalOverlaps(olap[1,], mock)
+
+# Weighting example, with window-specific weights.
+window.weights &lt;- runif(N) 
+comb &lt;- combineOverlaps(olap, mock, i.weight=window.weights)
+comb &lt;- getBestOverlaps(olap, mock, i.weight=window.weights)
+comb &lt;- empiricalOverlaps(olap, mock, i.weight=window.weights)
+
+# Weighting example, with relation-specific weights.
+best.by.ave &lt;- getBestOverlaps(olap, mock, by.pval=FALSE)
+w &lt;- summitOverlaps(olap, region.best=best.by.ave$rep.test)
+head(w)
+stopifnot(length(w)==length(olap))
+combineOverlaps(olap, mock, o.weight=w)
+
+# Running summitOverlaps for window-specific summits
+# (output is still relation-specific weights, though).
+is.summit &lt;- findMaxima(rowRanges(data), range=100, metric=mock$logCPM)
+w &lt;- summitOverlaps(olap, i.summit=is.summit)
+head(w)
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>csaw</em> version 1.26.0 <a href="00Index.html">Index</a>]</div>
+</body></html>
